@@ -1,0 +1,70 @@
+body {
+  background: black !important;
+}
+
+.btn-brand {
+  background: #fdd05c !important;
+  color: #000 !important;
+  font-weight: bold !important;
+}
+
+.btn-outline-brand {
+  background: transparent !important;
+  border: 1px solid #fdd05c !important;
+  color: #FFF !important;
+  font-weight: bold !important;
+}
+
+.btn-brand:hover {
+  background: #dfa001 !important;
+}
+
+.btn-outline-brand:hover {
+  background: #dfa001 !important;
+  color: #000 !important;
+
+}
+
+.link-brand {
+  color: #fde198 !important;
+}
+
+.link-brand:hover {
+  color: #dfa001 !important;
+}
+
+.sidebar-content {
+  color: #FFF;
+
+}
+
+.page-wrapper .sidebar-wrapper .sidebar-brand>a {
+  text-align: center;
+}
+
+.page-wrapper .sidebar-wrapper.sidebar-dark,
+.page-wrapper .page-content .top-header .header-bar {
+  background-color: #22222C !important;
+  border: 1px solid #161c2d;
+}
+
+.card {
+  background-color: #22222C !important;
+}
+
+.ellipsis {
+  max-width: 150px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.modal-content {
+  background-color: #FFF !important;
+  color: #000 !important;
+}
+
+.modal-content .form-control {
+  background-color: #FFF !important;
+  color: #000 !important;
+}
