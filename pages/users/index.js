@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
+// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
 import { Modal, Button, Form } from "react-bootstrap";
 
@@ -12,11 +12,8 @@ function UserList({ users }) {
 
 	const [isModalOpen, setModalOpen] = useState(false);
 	const handleOpenModal = () => {
-		setFirstName("");
-		setLastName("");
+		setFullName("");
 		setUserEmail("");
-		setUserPhone("");
-		setUserAddress("");
 		setModalOpen(true);
 	};
 	const handleCloseModal = () => setModalOpen(false);
@@ -24,12 +21,8 @@ function UserList({ users }) {
 	const [showModal, setShowModal] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
+	const [fullName, setFullName] = useState("");
 	const [userEmail, setUserEmail] = useState("");
-
-	const [userPhone, setUserPhone] = useState("");
-	const [userAddress, setUserAddress] = useState("");
 
 	const handleAddUser = async (event) => {
 		event.preventDefault();
@@ -39,46 +32,65 @@ function UserList({ users }) {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				first_name: firstName,
-				last_name: lastName,
+				name: fullName,
 				email: userEmail,
 			}),
 		});
 
+		// const data = await response.json();
 		if (response.ok) {
+			const updatedUsers = await fetchUpdatedUsers();
+			setFilteredUsers(updatedUsers);
 			setModalOpen(false);
-			// Optionally reset form or refresh data
-			setFirstName("");
-			setUserEmail("");
-			// Refresh users list if needed
 		} else {
-			alert("Failed to add user");
+			const errorData = await response.json();
+			alert(errorData.error);
 		}
 	};
 	const handleCloseEditUser = () => setShowModal(false);
 	const handleEditUser = (user) => {
 		setSelectedUser(user);
-		setFirstName(user.first_name);
-		setLastName(user.last_name);
+		setFullName(user.name);
 		setUserEmail(user.email);
-		setUserPhone(user.phone);
-		setUserAddress(user.address);
 		setShowModal(true);
 	};
 
 	const handleUpdateUser = async (e) => {
 		e.preventDefault();
 		// Add logic to handle updating user data
-		console.log(
-			"Updating user:",
-			selectedUser.id,
-			firstName,
-			lastName,
-			userEmail,
-			userPhone,
-			userAddress
+		const response = await fetch(
+			`http://localhost:3000/api/users/${selectedUser.id}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: fullName,
+					email: userEmail,
+				}),
+			}
 		);
-		setShowModal(false);
+
+		if (response.ok) {
+			const updatedUsers = await fetchUpdatedUsers();
+			setFilteredUsers(updatedUsers);
+			setShowModal(false);
+		} else {
+			const errorData = await response.json();
+			alert(errorData.error);
+		}
+	};
+
+	const fetchUpdatedUsers = async () => {
+		const response = await fetch("/api/users");
+		if (response.ok) {
+			const data = await response.json();
+			return data;
+		} else {
+			alert("Failed to fetch users");
+			return filteredUsers;
+		}
 	};
 
 	const handleDeleteUser = (userId) => {
@@ -95,11 +107,8 @@ function UserList({ users }) {
 		setFilteredUsers(
 			users.filter(
 				(user) =>
-					user.first_name.toLowerCase().includes(search.toLowerCase()) ||
-					user.last_name.toLowerCase().includes(search.toLowerCase()) ||
-					user.email.toLowerCase().includes(search.toLowerCase()) ||
-					user.phone.includes(search) ||
-					user.address.toLowerCase().includes(search.toLowerCase())
+					user.name.toLowerCase().includes(search.toLowerCase()) ||
+					user.email.toLowerCase().includes(search.toLowerCase())
 			)
 		);
 	}, [search, users]);
@@ -122,7 +131,7 @@ function UserList({ users }) {
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
+				{/* <TopMenu /> */}
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
@@ -158,8 +167,7 @@ function UserList({ users }) {
 												<th>SN</th>
 												<th>Name</th>
 												<th>Email</th>
-												<th>Phone</th>
-												{/* <th>Address</th> */}
+
 												<th>Action</th>
 											</tr>
 										</thead>
@@ -167,17 +175,8 @@ function UserList({ users }) {
 											{currentUsers.map((user, index) => (
 												<tr key={user.id}>
 													<td>{indexOfFirstUser + index + 1}</td>
-													<td>
-														<Link
-															className="link-brand"
-															href={`users/${user.id}`}
-															passHref>
-															{user.first_name} {user.last_name}
-														</Link>
-													</td>
 													<td>{user.email}</td>
-													<td>{user.phone}</td>
-													{/* <td>{user.address}</td> */}
+
 													<td>
 														<div className="btn-group">
 															<button
@@ -239,21 +238,12 @@ function UserList({ users }) {
 							<input
 								className="form-control"
 								type="text"
-								value={firstName}
-								onChange={(e) => setFirstName(e.target.value)}
+								value={fullName}
+								onChange={(e) => setFullName(e.target.value)}
 								placeholder="Enter name"
 							/>
 						</div>
-						<div className="col-6 form-group mb-2">
-							<label className="control-label">Last Name:</label>
-							<input
-								className="form-control"
-								type="text"
-								value={lastName}
-								onChange={(e) => setLastName(e.target.value)}
-								placeholder="Enter name"
-							/>
-						</div>
+
 						<div className="col-6 form-group mb-2">
 							<label className="control-label">Email:</label>
 							<input
@@ -262,26 +252,6 @@ function UserList({ users }) {
 								value={userEmail}
 								onChange={(e) => setUserEmail(e.target.value)}
 								placeholder="Enter email"
-							/>
-						</div>
-						<div className="col-6 form-group mb-2">
-							<label className="control-label">Phone:</label>
-							<input
-								className="form-control"
-								type="tel"
-								value={userPhone}
-								onChange={(e) => setUserPhone(e.target.value)}
-								placeholder="Enter phone"
-							/>
-						</div>
-						<div className="col-12 form-group mb-2">
-							<label className="control-label">Address:</label>
-							<input
-								className="form-control"
-								type="text"
-								value={userAddress}
-								onChange={(e) => setUserAddress(e.target.value)}
-								placeholder="Enter address"
 							/>
 						</div>
 
@@ -313,22 +283,15 @@ function UserList({ users }) {
 				</Modal.Header>
 				<Modal.Body>
 					<Form onSubmit={handleUpdateUser}>
-						<Form.Group controlId="formFirstName">
-							<Form.Label>First Name:</Form.Label>
+						<Form.Group controlId="fullName">
+							<Form.Label>Full Name:</Form.Label>
 							<Form.Control
 								type="text"
-								value={firstName}
-								onChange={(e) => setFirstName(e.target.value)}
+								value={fullName}
+								onChange={(e) => setFullName(e.target.value)}
 							/>
 						</Form.Group>
-						<Form.Group controlId="formLastName">
-							<Form.Label>Last Name:</Form.Label>
-							<Form.Control
-								type="text"
-								value={lastName}
-								onChange={(e) => setLastName(e.target.value)}
-							/>
-						</Form.Group>
+
 						<Form.Group controlId="formEmail">
 							<Form.Label>Email:</Form.Label>
 							<Form.Control
@@ -337,22 +300,7 @@ function UserList({ users }) {
 								onChange={(e) => setUserEmail(e.target.value)}
 							/>
 						</Form.Group>
-						<Form.Group controlId="formPhone">
-							<Form.Label>Phone:</Form.Label>
-							<Form.Control
-								type="tel"
-								value={userPhone}
-								onChange={(e) => setUserPhone(e.target.value)}
-							/>
-						</Form.Group>
-						<Form.Group controlId="formAddress">
-							<Form.Label>Address:</Form.Label>
-							<Form.Control
-								type="text"
-								value={userAddress}
-								onChange={(e) => setUserAddress(e.target.value)}
-							/>
-						</Form.Group>
+
 						<div className="mt-4 d-flex justify-content-center">
 							<button
 								type="button"
@@ -383,7 +331,7 @@ export async function getServerSideProps() {
 	const response = await fetch(`${api}/users`);
 	const data = await response.json();
 
-	// console.log(data);
+	console.log(data);
 	return {
 		props: {
 			users: data,

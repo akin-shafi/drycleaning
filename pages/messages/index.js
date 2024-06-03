@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
+// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
 // import { TabContent } from "react-bootstrap";
 import { useRouter } from "next/router";
 
-function MessageList({ messages }) {
+function MessageList({ messages, categories }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const router = useRouter();
 	const [messagesPerPage] = useState(5);
@@ -45,28 +45,37 @@ function MessageList({ messages }) {
 		pageNumbers.push(i);
 	}
 
-	const fetchSubject = async () => {
+	const fetchSubject = async (subject) => {
 		const response = await fetch(
-			`http://localhost:4000/messages?subject=Correction`
+			`http://localhost:3000/api/messages?subject=${subject}`
 		);
-		const data = await response.json();
-		setFilteredMessages(data);
-		router.push("/messages?category=Correction", undefined, { shallow: true });
+		if (response.ok) {
+			const data = await response.json();
+
+			setFilteredMessages(data);
+			router.push(`/messages?subject=${subject}`, undefined, { shallow: true });
+		} else {
+			console.error("Failed to fetch messages:", response.statusText);
+		}
 	};
 
 	return (
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
+				{/* <TopMenu /> */}
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
-							<button
-								className="btn btn-sm btn-brand mb-4"
-								onClick={fetchSubject}>
-								Correction
-							</button>
+							{categories.map(({ subject, count }) => (
+								<button
+									key={subject}
+									className="btn btn-sm btn-brand mb-4 me-3"
+									onClick={() => fetchSubject(subject)}>
+									{subject} ({count})
+								</button>
+							))}
+
 							<div className="card ">
 								<div className="d-flex justify-content-between">
 									<h5 className="mb-0 text-white p-4">
@@ -146,19 +155,32 @@ function MessageList({ messages }) {
 export default MessageList;
 
 export async function getServerSideProps(context) {
+	let api = process.env.NEXT_APP_API_LOCAL;
 	const { query } = context;
 	const { subject } = query;
-	const queryString = subject ? `messages=Correction` : "";
+	const queryString = subject ? subject : "";
 
-	let api = process.env.NEXT_APP_API_LOCAL;
-
-	const response = await fetch(`${api}/messages?${queryString}`);
+	const response = await fetch(`${api}/messages?subject=${queryString}`);
 	const data = await response.json();
 
-	// console.log(data);
+	// Extract unique subjects from messages
+	// Create a map to count subjects
+	const subjectCounts = data.reduce((acc, message) => {
+		acc[message.subject] = (acc[message.subject] || 0) + 1;
+		return acc;
+	}, {});
+
+	// Convert to array format suitable for the component
+	const uniqueSubjects = Object.entries(subjectCounts).map(
+		([subject, count]) => {
+			return { subject, count };
+		}
+	);
+
 	return {
 		props: {
 			messages: data,
+			categories: uniqueSubjects,
 		},
 	};
 }

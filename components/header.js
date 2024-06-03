@@ -1,93 +1,110 @@
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 
 function Header() {
+	const { data: session } = useSession();
+
 	return (
 		<>
 			<div className="header landing">
-				<div class="container">
-					<div class="row">
-						<div class="col-xl-12">
-							<div class="navigation">
-								<nav class="navbar navbar-expand-lg navbar-light">
-									<div class="brand-logo">
-										<a href="index-2.html">
+				<div className="container">
+					<div className="row">
+						<div className="col-xl-12">
+							<div className="navigation">
+								<nav className="navbar navbar-expand-lg navbar-light">
+									<div className="brand-logo">
+										<Link href="/">
 											<img
-												src="../logo.png"
+												src="/images/logo.png"
 												alt=""
 												width="90"
-												class="logo-primary"
+												className="logo-primary"
 											/>
 											<img
-												src="images/logo.png"
+												src="/images/logo.png"
 												alt=""
-												class="logo-white"
+												className="logo-white"
 											/>
-										</a>
+										</Link>
 									</div>
 									<button
-										class="navbar-toggler"
+										className="navbar-toggler"
 										type="button"
 										data-bs-toggle="collapse"
 										data-bs-target="#navbarSupportedContent"
 										aria-controls="navbarSupportedContent"
 										aria-expanded="false"
 										aria-label="Toggle navigation">
-										<span class="navbar-toggler-icon"></span>
+										<span className="navbar-toggler-icon"></span>
 									</button>
 									<div
-										class="collapse navbar-collapse"
+										className="collapse navbar-collapse"
 										id="navbarSupportedContent">
-										<ul class="navbar-nav me-auto">
-											<li class="nav-item dropdown">
+										<ul className="navbar-nav me-auto">
+											<li className="nav-item dropdown">
 												<Link
-													class="nav-link"
-													href="#home">
+													href="#home"
+													className="nav-link">
 													Home
 												</Link>
 											</li>
-											<li class="nav-item">
+											<li className="nav-item">
 												<Link
-													class="nav-link"
-													href="#services">
+													href="#services"
+													className="nav-link">
 													Services
 												</Link>
 											</li>
-											<li class="nav-item">
+											<li className="nav-item">
 												<Link
-													class="nav-link"
-													href="#about">
+													href="#about"
+													className="nav-link">
 													About
 												</Link>
 											</li>
-											<li class="nav-item">
+											<li className="nav-item">
 												<a
-													class="nav-link"
+													className="nav-link"
 													href="#contact">
 													Contact
 												</a>
 											</li>
 										</ul>
 									</div>
-									<div class="signin-btn d-flex align-items-center">
-										<div
-											class="dark-light-toggle theme-switch"
-											onclick="themeToggle()">
-											<span class="dark">
-												<i class="ri-moon-line"></i>
+									<div className="signin-btn d-flex align-items-center">
+										<div className="dark-light-toggle theme-switch">
+											<span className="dark">
+												<i className="ri-moon-line"></i>
 											</span>
-											<span class="light">
-												<i class="ri-sun-line"></i>
+											<span className="light">
+												<i className="ri-sun-line"></i>
 											</span>
 										</div>
-
-										{/* <button class="btn btn-brand me-2">
-											Schedule a pickup
-										</button> */}
 										<Link
-											class="btn btn-brand"
-											href="/login">
-											Login
+											href="#contact"
+											className="btn btn-outline-brand me-2">
+											Contact Us
 										</Link>
+										{session ? (
+											<>
+												{/* <button
+													className="btn btn-brand"
+													onClick={() => signOut()}>
+													Sign Out
+												</button> */}
+												<Link
+													href="/dashboard"
+													className="btn btn-brand ms-2">
+													Dashboard
+												</Link>
+											</>
+										) : (
+											<Link
+												href="/login"
+												className="btn btn-brand">
+												Login
+											</Link>
+										)}
 									</div>
 								</nav>
 							</div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
+// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
 function ScheduleList({ schedules }) {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,7 @@ function ScheduleList({ schedules }) {
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
+				{/* <TopMenu /> */}
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">

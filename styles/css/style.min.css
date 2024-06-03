@@ -394,6 +394,8 @@ p {
 .page-wrapper .sidebar-wrapper .sidebar-menu li:hover>a,
 .page-wrapper .sidebar-wrapper .sidebar-menu li:hover>a:before {
     color: #2f55d4;
+    background-color: #dfa001 !important;
+
 }
 
 .page-wrapper .sidebar-wrapper .sidebar-menu li a:hover {
@@ -1580,7 +1582,7 @@ footer .footer-list li:last-child {
 .features {
     -webkit-transition: all .5s ease;
     transition: all .5s ease;
-    background-color: #fff
+    background-color: #19171756
 }
 
 .features .icon {

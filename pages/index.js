@@ -7,12 +7,24 @@ function Home() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [serviceData, setServiceData] = useState(true);
 	const [modalIsOpen, setModalIsOpen] = useState(false);
+	const [formData, setFormData] = useState({
+		name: "",
+		email: "",
+		phone: "",
+		address: "",
+		pickupDate: "",
+		deliveryDate: "",
+		comment: "",
+	});
 
 	useEffect(() => {
 		async function fetchServiceData() {
-			const response = await fetch(`http://localhost:4000/services`);
+			// const response = await fetch(
+			// 	`${process.env.NEXT_APP_API_LOCAL}/services`
+			// );
+			const response = await fetch(`http://localhost:3000/api/services`);
 			const data = await response.json();
-			console.log(data);
+			// console.log(data);
 			setServiceData(data);
 			setIsLoading(false);
 		}
@@ -31,12 +43,37 @@ function Home() {
 		setModalIsOpen(false);
 	};
 
-	const handleSubmit = (event) => {
-		event.preventDefault();
-		// Here you can handle the form submission, e.g., sending data to a server
-		console.log("Form submitted");
-		// Optionally close modal on form submission
-		// closeModal();
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData({
+			...formData,
+			[name]: value,
+		});
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		try {
+			const response = await fetch("/api/services", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(formData),
+			});
+
+			if (!response.ok) {
+				throw new Error("Network response was not ok");
+			}
+
+			const result = await response.json();
+			console.log("Form submitted successfully:", result);
+			// You can add more actions here, such as closing the modal or showing a success message.
+		} catch (error) {
+			console.error("Error submitting form:", error);
+			// Handle the error appropriately in your UI.
+		}
 	};
 	return (
 		<>
@@ -103,6 +140,8 @@ function Home() {
 															className="form-control"
 															id="name"
 															name="name"
+															value={formData.name}
+															onChange={handleChange}
 															required
 														/>
 													</div>
@@ -118,6 +157,8 @@ function Home() {
 															className="form-control"
 															id="email"
 															name="email"
+															value={formData.email}
+															onChange={handleChange}
 															required
 														/>
 													</div>
@@ -133,6 +174,8 @@ function Home() {
 															className="form-control"
 															id="phone"
 															name="phone"
+															value={formData.phone}
+															onChange={handleChange}
 															required
 														/>
 													</div>
@@ -148,6 +191,8 @@ function Home() {
 															className="form-control"
 															id="address"
 															name="address"
+															value={formData.address}
+															onChange={handleChange}
 															required
 														/>
 													</div>
@@ -163,6 +208,8 @@ function Home() {
 															className="form-control"
 															id="pickupDate"
 															name="pickupDate"
+															value={formData.pickupDate}
+															onChange={handleChange}
 															required
 														/>
 													</div>
@@ -178,6 +225,8 @@ function Home() {
 															className="form-control"
 															id="deliveryDate"
 															name="deliveryDate"
+															value={formData.deliveryDate}
+															onChange={handleChange}
 															required
 														/>
 													</div>
@@ -192,7 +241,9 @@ function Home() {
 															className="form-control"
 															id="comment"
 															name="comment"
-															rows="3"></textarea>
+															rows="3"
+															value={formData.comment}
+															onChange={handleChange}></textarea>
 													</div>
 
 													<div className="d-grid gap-2 d-md-flex justify-content-md-center">
@@ -421,10 +472,12 @@ function Home() {
 										<h3 className="text-white text-center">Write a message</h3>
 										<div className="row justify-content-center">
 											<div className="col-md-6">
-												<form className="row">
+												<form
+													className="row"
+													onSubmit={handleSubmit}>
 													<div className="mb-3 col-6">
 														<label
-															for="fullName"
+															htmlFor="fullName"
 															className="form-label">
 															Full Name
 														</label>
@@ -437,7 +490,7 @@ function Home() {
 													</div>
 													<div className="mb-3 col-6">
 														<label
-															for="email"
+															htmlFor="email"
 															className="form-label">
 															Email address
 														</label>
@@ -450,7 +503,7 @@ function Home() {
 													</div>
 													<div className="mb-3 col-6">
 														<label
-															for="phone"
+															htmlFor="phone"
 															className="form-label">
 															phone
 														</label>
@@ -464,7 +517,7 @@ function Home() {
 
 													<div className="mb-3 col-6">
 														<label
-															for="subject"
+															htmlFor="subject"
 															className="form-label">
 															subject
 														</label>
@@ -477,7 +530,7 @@ function Home() {
 													</div>
 													<div className="mb-3 col-12">
 														<label
-															for="message"
+															htmlFor="message"
 															className="form-label">
 															Message
 														</label>

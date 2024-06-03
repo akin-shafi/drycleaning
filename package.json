@@ -1,5 +1,5 @@
 {
-  "name": "hello-app",
+  "name": "dry-cleaning",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,13 +10,18 @@
     "server-json": "json-server --watch db.json --port 4000"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",
     "json-server": "^1.0.0-alpha.23",
+    "mysql2": "^3.10.0",
     "next": "14.2.3",
+    "next-auth": "^4.24.7",
     "react": "18.3.1",
     "react-bootstrap": "^2.10.2",
     "react-dom": "18.3.1",
     "react-modal": "^3.16.1",
+    "sequelize": "^6.37.3",
     "server": "^1.0.39"
   }
 }

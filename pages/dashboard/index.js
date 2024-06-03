@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import React, { useState, useEffect } from "react";
+import { signIn, useSession, getSession } from "next-auth/react";
+import Menu from "../../components/Menu";
 import Link from "next/link";
 import { Modal } from "react-bootstrap";
 
 function Dashboard({ customers, schedules, messages }) {
+	const { data: session, status } = useSession();
+	const loading = status === "loading";
+
 	const [isModalOpen, setModalOpen] = useState(false);
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -41,6 +44,21 @@ function Dashboard({ customers, schedules, messages }) {
 		}
 	};
 
+	useEffect(() => {
+		if (!loading && !session) {
+			signIn("github", { callbackUrl: "/dashboard" });
+		}
+	}, [loading, session]);
+
+	if (loading) {
+		return <h2>Loading...</h2>;
+	}
+
+	if (!session) {
+		return null; // Avoid rendering anything while redirecting
+	}
+
+	const isLoggedIn = session && session.user;
 	return (
 		<>
 			<Modal
@@ -126,14 +144,19 @@ function Dashboard({ customers, schedules, messages }) {
 
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
 							<div className="card">
-								<h5 className="mb-0 text-white p-4">Welcome Admin</h5>
+								<h5 className="mb-0 text-white p-4">
+									{isLoggedIn ? (
+										<p>Welcome {session.user.name}</p>
+									) : (
+										<p>Welcome Admin</p>
+									)}
+								</h5>
 							</div>
-
+							{/* Session USer {session} */}
 							<div className="row">
 								<div className="col-lg-5 mt-4">
 									<div className="card border-0 rounded shadow p-4">
@@ -306,9 +329,9 @@ function Dashboard({ customers, schedules, messages }) {
 
 export default Dashboard;
 
-export async function getServerSideProps() {
-	let api = process.env.NEXT_APP_API_LOCAL;
-
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
+	const api = process.env.NEXT_APP_API_LOCAL;
 	const customerResponse = await fetch(`${api}/customers`);
 	const customerData = await customerResponse.json();
 
@@ -322,12 +345,19 @@ export async function getServerSideProps() {
 
 	const limitedMessageData = messageData.slice(-3);
 
-	// console.log(data);
+	if (!session) {
+		return {
+			redirect: {
+				destination: `${process.env.DESTINATION_URL}/dashboard`, //redirect to login page
+				permanent: false,
+			},
+		};
+	}
 	return {
 		props: {
-			customers: customerData,
-			schedules: limitedScheduleData,
-			messages: limitedMessageData,
+			customers: session ? customerData : "",
+			schedules: session ? limitedScheduleData : "",
+			messages: session ? limitedMessageData : "",
 		},
 	};
 }

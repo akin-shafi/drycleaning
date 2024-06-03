@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { useRouter } from "next/router";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
+// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
 function ScheduleById({ schedule }) {
 	const router = useRouter();
@@ -14,7 +14,7 @@ function ScheduleById({ schedule }) {
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
+				{/* <TopMenu /> */}
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
@@ -110,7 +110,7 @@ export default ScheduleById;
 export async function getStaticProps(context) {
 	const { params } = context;
 	const response = await fetch(
-		`${process.env.NEXT_APP_API_LOCAL}/schedules/${params.scheduleId}`
+		`${process.env.NEXT_APP_API_DB}/schedules/${params.scheduleId}`
 	);
 	const data = await response.json();
 

@@ -2,6 +2,10 @@ body {
   background: black !important;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .btn-brand {
   background: #fdd05c !important;
   color: #000 !important;
@@ -31,6 +35,7 @@ body {
 
 .link-brand:hover {
   color: #dfa001 !important;
+  text-decoration: underline !important;
 }
 
 .sidebar-content {

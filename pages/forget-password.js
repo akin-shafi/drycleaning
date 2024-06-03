@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import Image from "next/image";
 function ForgetPassword() {
 	return (
 		<>
@@ -11,18 +11,22 @@ function ForgetPassword() {
 								<div className="card-body p-3 p-md-4 p-xl-5">
 									<div className="text-center mb-3">
 										<Link href="/forget-password">
-											<img
-												src="logo.png"
-												alt="BootstrapBrain Logo"
-												width="175"
+											<Image
+												src="/images/logo.png"
+												alt="Logo"
+												width={175}
+												height={120}
 											/>
 										</Link>
 									</div>
-									<h2 className="text-center text-light">Forget Password</h2>
+									<h2 className="text-center text-white">Reset Password</h2>
 
 									<form action="#!">
 										<div className="row gy-2 overflow-hidden">
 											<div className="col-12">
+												<div class="text-white">
+													Enter email to reset password
+												</div>
 												<div className="form-floating mb-3">
 													<input
 														type="email"
@@ -33,7 +37,7 @@ function ForgetPassword() {
 														required
 													/>
 													<label
-														for="email"
+														htmlFor="email"
 														className="form-label">
 														Email
 													</label>

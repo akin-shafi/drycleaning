@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { useRouter } from "next/router";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
+// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
 function UserById({ user }) {
 	const router = useRouter();
@@ -14,7 +14,7 @@ function UserById({ user }) {
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
+				{/* <TopMenu /> */}
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
@@ -22,13 +22,11 @@ function UserById({ user }) {
 								className="card"
 								style={{ width: "18rem" }}>
 								<div className="card-body text-white">
-									<h5 className="card-title">
-										{user.first_name} {user.last_name}
-									</h5>
+									<h5 className="card-title">{user.name}</h5>
 									<p className="card-text">
 										{user.phone} {user.email}
 									</p>
-									<p className="card-text">{user.address}</p>
+
 									<Link
 										href="/users"
 										className="btn btn-md btn-brand">
@@ -48,7 +46,7 @@ export default UserById;
 export async function getStaticProps(context) {
 	const { params } = context;
 	const response = await fetch(
-		`${process.env.NEXT_APP_API_LOCAL}/users/${params.userId}`
+		`${process.env.NEXT_APP_API_DB}/users/${params.userId}`
 	);
 	const data = await response.json();
 

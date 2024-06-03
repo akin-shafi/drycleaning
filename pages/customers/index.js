@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
 import Link from "next/link";
 import { Modal, Button, Form } from "react-bootstrap";
 
@@ -42,19 +41,32 @@ function CustomerList({ customers }) {
 				first_name: firstName,
 				last_name: lastName,
 				email: customerEmail,
+				phone: customerPhone,
+				address: customerAddress,
 			}),
 		});
-
+		// const data = await response.json();
 		if (response.ok) {
+			const updatedCustomers = await fetchUpdatedCustomers();
+			setFilteredCustomers(updatedCustomers);
 			setModalOpen(false);
-			// Optionally reset form or refresh data
-			setFirstName("");
-			setCustomerEmail("");
-			// Refresh customers list if needed
 		} else {
-			alert("Failed to add customer");
+			const errorData = await response.json();
+			alert(errorData.error);
 		}
 	};
+
+	const fetchUpdatedCustomers = async () => {
+		const response = await fetch("/api/customers");
+		if (response.ok) {
+			const data = await response.json();
+			return data;
+		} else {
+			alert("Failed to fetch customers");
+			return filteredCustomers;
+		}
+	};
+
 	const handleCloseEditCustomer = () => setShowModal(false);
 	const handleEditCustomer = (customer) => {
 		setSelectedCustomer(customer);
@@ -68,17 +80,33 @@ function CustomerList({ customers }) {
 
 	const handleUpdateCustomer = async (e) => {
 		e.preventDefault();
+
 		// Add logic to handle updating customer data
-		console.log(
-			"Updating customer:",
-			selectedCustomer.id,
-			firstName,
-			lastName,
-			customerEmail,
-			customerPhone,
-			customerAddress
+		const response = await fetch(
+			`http://localhost:3000/api/customers/${selectedCustomer.id}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					first_name: firstName,
+					last_name: lastName,
+					email: customerEmail,
+					phone: customerPhone,
+					address: customerAddress,
+				}),
+			}
 		);
-		setShowModal(false);
+
+		if (response.ok) {
+			const updatedCustomers = await fetchUpdatedCustomers();
+			setFilteredCustomers(updatedCustomers);
+			setShowModal(false);
+		} else {
+			const errorData = await response.json();
+			alert(errorData.error);
+		}
 	};
 
 	const handleDeleteCustomer = (customerId) => {
@@ -131,7 +159,6 @@ function CustomerList({ customers }) {
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
@@ -195,7 +222,7 @@ function CustomerList({ customers }) {
 																<i className="ti ti-edit"></i>
 															</button>
 															<button
-																className="btn btn-sm btn-danger ml-2"
+																className="btn btn-sm btn-dark ml-2"
 																onClick={() =>
 																	handleDeleteCustomer(customer.id)
 																}>

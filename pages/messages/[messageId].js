@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { useRouter } from "next/router";
-import Menu from "../../components/sidebar-menu";
-import TopMenu from "../../components/top-menu";
+import Menu from "../../components/Menu";
 import Link from "next/link";
 function MessageById({ message }) {
 	const router = useRouter();
@@ -14,7 +13,6 @@ function MessageById({ message }) {
 		<>
 			<div className="page-wrapper toggled">
 				<Menu />
-				<TopMenu />
 				<main className="page-content ">
 					<div className="container-fluid">
 						<div className="layout-specing">
@@ -61,7 +59,7 @@ export default MessageById;
 export async function getStaticProps(context) {
 	const { params } = context;
 	const response = await fetch(
-		`${process.env.NEXT_APP_API_LOCAL}/messages/${params.messageId}`
+		`${process.env.NEXT_APP_API_DB}/messages/${params.messageId}`
 	);
 	const data = await response.json();
 

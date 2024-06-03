@@ -2550,7 +2550,7 @@ progress {
   font-weight: 400;
   line-height: 1.7;
   color: #62759d;
-  background-color: #fff;
+  background-color: #1c2836;
   background-clip: padding-box;
   border: 1px solid #ced4da;
   -webkit-appearance: none;
@@ -15328,7 +15328,7 @@ strong {
   padding: 0px 22px;
   font-size: 14px;
   color: #0E0B2B;
-  background: #fff;
+  background: #1c2836 !important;
 }
 
 .form-control span {
@@ -15463,7 +15463,7 @@ button:active,
 .btn-outline-warning,
 .btn-outline-danger,
 .btn-outline-light {
-  color: #0E0B2B;
+  color: #62759d;
 }
 
 .btn-outline-primary:hover,
