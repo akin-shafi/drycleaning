@@ -1,24 +1,23 @@
-import { fetchAllCustomers, createCustomer } from "../../../lib/customers";
-// import { getSession } from "next-auth/react";
+// pages/api/customers.js
+
+import Customer from "@/models/Customer";
+
 export default async function handler(req, res) {
-	// const session = await getSession({ req });
-	// if (!session) {
-	// 	res.status(401).json({ error: "Unauthorized" });
-	// } else {
-	// 	res.status(200).json({ message: "Success", session });
-	// }
-	try {
-		if (req.method === "GET") {
-			const customers = await fetchAllCustomers();
-			return res.status(200).json(customers);
-		} else if (req.method === "POST") {
-			const customer = req.body;
-			const newCustomer = await createCustomer(customer);
-			return res.status(201).json(newCustomer);
-		} else {
-			res.status(405).end(); // Method Not Allowed
+	if (req.method === "GET") {
+		try {
+			const customers = await Customer.findAll();
+			res.status(200).json(customers);
+		} catch (error) {
+			res.status(500).json({ error: error.message });
 		}
-	} catch (error) {
-		res.status(500).json({ error: error.message });
+	}
+	// handle other methods similarly
+	if (req.method === "POST") {
+		try {
+			const newCustomer = await Customer.create(req.body);
+			res.status(201).json(newCustomer);
+		} catch (error) {
+			res.status(500).json({ error: error.message });
+		}
 	}
 }

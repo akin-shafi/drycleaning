@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Menu from "../../components/Menu";
 import Link from "next/link";
 import { Modal, Button, Form } from "react-bootstrap";
+import { getSession } from "next-auth/react";
 
 function CustomerList({ customers }) {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -415,13 +416,22 @@ function CustomerList({ customers }) {
 
 export default CustomerList;
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
 	let api = process.env.NEXT_APP_API_LOCAL;
 
 	const response = await fetch(`${api}/customers`);
 	const data = await response.json();
 
 	// console.log(data);
+	if (!session) {
+		return {
+			redirect: {
+				destination: `${process.env.LOGIN_URL}`, //redirect to login page
+				permanent: false,
+			},
+		};
+	}
 	return {
 		props: {
 			customers: data,

@@ -1,18 +1,21 @@
-import { fetchAllServices, createServices } from "../../../lib/services";
+import Service from "@/models/Service";
 
 export default async function handler(req, res) {
-	try {
-		if (req.method === "GET") {
-			const services = await fetchAllServices();
-			return res.status(200).json(services);
-		} else if (req.method === "POST") {
-			const service = req.body;
-			const newService = await createServices(service);
-			return res.status(201).json(newService);
-		} else {
-			res.status(405).end(); // Method Not Allowed
+	if (req.method === "GET") {
+		try {
+			const services = await Service.findAll();
+			res.status(200).json(services);
+		} catch (error) {
+			res.status(500).json({ error: error.message });
 		}
-	} catch (error) {
-		res.status(500).json({ error: error.message });
+	}
+	// handle other methods similarly
+	if (req.method === "POST") {
+		try {
+			const newService = await Service.create(req.body);
+			res.status(201).json(newService);
+		} catch (error) {
+			res.status(500).json({ error: error.message });
+		}
 	}
 }

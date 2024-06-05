@@ -12,6 +12,7 @@ function SideBarMenu() {
 	const isLoggedIn = session && session.user;
 	// console.log(session);
 
+
 	const handleSignOut = async (e) => {
 		e.preventDefault();
 		await signOut({ callbackUrl: "/login" });

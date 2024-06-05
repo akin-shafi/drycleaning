@@ -175,6 +175,7 @@ function UserList({ users }) {
 											{currentUsers.map((user, index) => (
 												<tr key={user.id}>
 													<td>{indexOfFirstUser + index + 1}</td>
+													<td>{user.name}</td>
 													<td>{user.email}</td>
 
 													<td>

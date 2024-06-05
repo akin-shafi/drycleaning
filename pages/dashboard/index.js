@@ -348,7 +348,7 @@ export async function getServerSideProps(context) {
 	if (!session) {
 		return {
 			redirect: {
-				destination: `${process.env.DESTINATION_URL}/dashboard`, //redirect to login page
+				destination: `${process.env.LOGIN_URL}`, //redirect to login page
 				permanent: false,
 			},
 		};

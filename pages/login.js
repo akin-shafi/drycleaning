@@ -5,6 +5,8 @@ import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 
+import MessageComponent from "@/components/MessageComponent";
+
 function Login() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -78,19 +80,7 @@ function Login() {
 								</div>
 								<div className="my-4">
 									<div className="">
-										{message === "timeout" && (
-											<div
-												className="alert alert-light text-center"
-												style={{ color: "red" }}>
-												You have been timed out due to inactivity. Please log in
-												again.
-											</div>
-										)}
-										{message === "success" && (
-											<div className="alert alert-light text-center text-success">
-												Signup successful. Login
-											</div>
-										)}
+										<MessageComponent message={message} />
 									</div>
 								</div>
 								<h2 className="text-center text-muted">Login</h2>

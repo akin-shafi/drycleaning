@@ -1,18 +1,21 @@
-import { fetchAllSchedules, createSchedule } from "../../../lib/schedules";
+import Schedule from "@/models/Schedule";
 
 export default async function handler(req, res) {
-	try {
-		if (req.method === "GET") {
-			const schedules = await fetchAllSchedules();
-			return res.status(200).json(schedules);
-		} else if (req.method === "POST") {
-			const service = req.body;
-			const newService = await createSchedule(service);
-			return res.status(201).json(newService);
-		} else {
-			res.status(405).end(); // Method Not Allowed
+	if (req.method === "GET") {
+		try {
+			const schedules = await Schedule.findAll();
+			res.status(200).json(schedules);
+		} catch (error) {
+			res.status(500).json({ error: error.message });
 		}
-	} catch (error) {
-		res.status(500).json({ error: error.message });
+	}
+	// handle other methods similarly
+	if (req.method === "POST") {
+		try {
+			const newSchedule = await Schedule.create(req.body);
+			res.status(201).json(newSchedule);
+		} catch (error) {
+			res.status(500).json({ error: error.message });
+		}
 	}
 }

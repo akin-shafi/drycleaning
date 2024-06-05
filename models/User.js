@@ -1,9 +1,12 @@
-// models/User.js
-import { DataTypes } from "sequelize";
-import sequelize from "@/utils/db";
+import { Model, DataTypes } from "sequelize";
+import bcrypt from "bcryptjs";
+import sequelize from "../utils/db.js";
 
-const User = sequelize.define(
-	"User",
+class User extends Model {
+	// Add methods if needed
+}
+
+User.init(
 	{
 		name: {
 			type: DataTypes.STRING,
@@ -16,7 +19,7 @@ const User = sequelize.define(
 		},
 		password: {
 			type: DataTypes.STRING,
-			allowNull: true,
+			allowNull: false,
 		},
 		image: {
 			type: DataTypes.STRING,
@@ -24,6 +27,22 @@ const User = sequelize.define(
 		},
 	},
 	{
+		sequelize,
+		modelName: "User",
+		hooks: {
+			beforeCreate: async (user) => {
+				if (user.password) {
+					const salt = await bcrypt.genSalt(10);
+					user.password = await bcrypt.hash(user.password, salt);
+				}
+			},
+			beforeUpdate: async (user) => {
+				if (user.changed("password")) {
+					const salt = await bcrypt.genSalt(10);
+					user.password = await bcrypt.hash(user.password, salt);
+				}
+			},
+		},
 		timestamps: true,
 	}
 );
