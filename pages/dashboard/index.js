@@ -331,16 +331,16 @@ export default Dashboard;
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	const api = process.env.NEXT_PUBLIC_API_LOCAL;
-	const customerResponse = await fetch(`${api}/customers`);
+	// const api = process.env.NEXT_PUBLIC_API_LOCAL;
+	const customerResponse = await fetch("/api/customers");
 	const customerData = await customerResponse.json();
 
-	const scheduleResponse = await fetch(`${api}/schedules`);
+	const scheduleResponse = await fetch("/api/schedules");
 	const scheduleData = await scheduleResponse.json();
 	// Only keep the last 3 schedules
 	const limitedScheduleData = scheduleData.slice(-3);
 
-	const messageResponse = await fetch(`${api}/messages`);
+	const messageResponse = await fetch("/api/messages");
 	const messageData = await messageResponse.json();
 
 	const limitedMessageData = messageData.slice(-3);

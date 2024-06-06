@@ -17,9 +17,7 @@ function Home() {
 
 	useEffect(() => {
 		async function fetchServiceData() {
-			const END_POINT = process.env.NEXT_PUBLIC_API_LOCAL;
-			console.log(END_POINT);
-			const response = await fetch(`${END_POINT}/services`);
+			const response = await fetch("/api/services");
 			const data = await response.json();
 			// console.log(data);
 			setServiceData(data);
@@ -559,13 +557,3 @@ function Home() {
 }
 
 export default Home;
-
-// export async function getServerSideProps() {
-// 	const response = await fetch(`${process.env.NEXT_PUBLIC_API_LOCAL}/services`);
-// 	const data = await response.json();
-// 	return {
-// 		props: {
-// 			services: data,
-// 		},
-// 	};
-// }

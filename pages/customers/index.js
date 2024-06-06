@@ -83,8 +83,8 @@ function CustomerList({ customers }) {
 		e.preventDefault();
 
 		// Add logic to handle updating customer data
-		const api = NEXT_PUBLIC_API_LOCAL;
-		const response = await fetch(`${api}/customers/${selectedCustomer.id}`, {
+		// const api = NEXT_PUBLIC_API_LOCAL;
+		const response = await fetch(`/api/customers/${selectedCustomer.id}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
@@ -416,9 +416,9 @@ export default CustomerList;
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	let api = process.env.NEXT_PUBLIC_API_LOCAL;
+	// let api = process.env.NEXT_PUBLIC_API_LOCAL;
 
-	const response = await fetch(`${api}/customers`);
+	const response = await fetch(`/api/customers`);
 	const data = await response.json();
 
 	// console.log(data);
