@@ -19,10 +19,8 @@ function Home() {
 
 	useEffect(() => {
 		async function fetchServiceData() {
-			// const response = await fetch(
-			// 	`${process.env.NEXT_APP_API_LOCAL}/services`
-			// );
-			const response = await fetch(`http://localhost:3000/api/services`);
+			const api = NEXT_APP_API_LOCAL;
+			const response = await fetch(`${api}/services`);
 			const data = await response.json();
 			// console.log(data);
 			setServiceData(data);

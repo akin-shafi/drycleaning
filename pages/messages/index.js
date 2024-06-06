@@ -46,9 +46,8 @@ function MessageList({ messages, categories }) {
 	}
 
 	const fetchSubject = async (subject) => {
-		const response = await fetch(
-			`http://localhost:3000/api/messages?subject=${subject}`
-		);
+		const api = NEXT_APP_API_LOCAL;
+		const response = await fetch(`${api}/messages?subject=${subject}`);
 		if (response.ok) {
 			const data = await response.json();
 

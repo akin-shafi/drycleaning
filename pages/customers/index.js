@@ -83,22 +83,20 @@ function CustomerList({ customers }) {
 		e.preventDefault();
 
 		// Add logic to handle updating customer data
-		const response = await fetch(
-			`http://localhost:3000/api/customers/${selectedCustomer.id}`,
-			{
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					first_name: firstName,
-					last_name: lastName,
-					email: customerEmail,
-					phone: customerPhone,
-					address: customerAddress,
-				}),
-			}
-		);
+		const api = NEXT_APP_API_LOCAL;
+		const response = await fetch(`${api}/customers/${selectedCustomer.id}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				first_name: firstName,
+				last_name: lastName,
+				email: customerEmail,
+				phone: customerPhone,
+				address: customerAddress,
+			}),
+		});
 
 		if (response.ok) {
 			const updatedCustomers = await fetchUpdatedCustomers();

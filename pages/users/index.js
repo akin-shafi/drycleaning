@@ -58,19 +58,17 @@ function UserList({ users }) {
 	const handleUpdateUser = async (e) => {
 		e.preventDefault();
 		// Add logic to handle updating user data
-		const response = await fetch(
-			`http://localhost:3000/api/users/${selectedUser.id}`,
-			{
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					name: fullName,
-					email: userEmail,
-				}),
-			}
-		);
+		const api = NEXT_APP_API_LOCAL;
+		const response = await fetch(`${api}/users/${selectedUser.id}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				name: fullName,
+				email: userEmail,
+			}),
+		});
 
 		if (response.ok) {
 			const updatedUsers = await fetchUpdatedUsers();
