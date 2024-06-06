@@ -58,7 +58,7 @@ function UserList({ users }) {
 	const handleUpdateUser = async (e) => {
 		e.preventDefault();
 		// Add logic to handle updating user data
-		const api = NEXT_APP_API_LOCAL;
+		const api = NEXT_PUBLIC_API_LOCAL;
 		const response = await fetch(`${api}/users/${selectedUser.id}`, {
 			method: "PUT",
 			headers: {
@@ -325,7 +325,7 @@ function UserList({ users }) {
 export default UserList;
 
 export async function getServerSideProps() {
-	let api = process.env.NEXT_APP_API_LOCAL;
+	let api = process.env.NEXT_PUBLIC_API_LOCAL;
 
 	const response = await fetch(`${api}/users`);
 	const data = await response.json();

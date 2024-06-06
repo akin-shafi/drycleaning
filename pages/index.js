@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
-// import { useRouter } from "next/router";
 import { Modal, Form } from "react-bootstrap";
 function Home() {
-	// const router = useRouter();
 	const [isLoading, setIsLoading] = useState(true);
 	const [serviceData, setServiceData] = useState(true);
 	const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -19,8 +17,9 @@ function Home() {
 
 	useEffect(() => {
 		async function fetchServiceData() {
-			const api = NEXT_APP_API_LOCAL;
-			const response = await fetch(`${api}/services`);
+			const END_POINT = process.env.NEXT_PUBLIC_API_LOCAL;
+			console.log(END_POINT);
+			const response = await fetch(`${END_POINT}/services`);
 			const data = await response.json();
 			// console.log(data);
 			setServiceData(data);
@@ -562,7 +561,7 @@ function Home() {
 export default Home;
 
 // export async function getServerSideProps() {
-// 	const response = await fetch(`${process.env.NEXT_APP_API_LOCAL}/services`);
+// 	const response = await fetch(`${process.env.NEXT_PUBLIC_API_LOCAL}/services`);
 // 	const data = await response.json();
 // 	return {
 // 		props: {

@@ -128,7 +128,7 @@ function ScheduleList({ schedules }) {
 export default ScheduleList;
 
 export async function getServerSideProps() {
-	let api = process.env.NEXT_APP_API_LOCAL;
+	let api = process.env.NEXT_PUBLIC_API_LOCAL;
 
 	const response = await fetch(`${api}/schedules`);
 	const data = await response.json();
