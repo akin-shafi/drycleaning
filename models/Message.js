@@ -4,7 +4,6 @@ import sequelize from "../utils/db.js"; // Assuming this is the correct path to 
 const Message = sequelize.define(
 	"Messages",
 	{
-	
 		name: {
 			type: DataTypes.STRING,
 			allowNull: false,

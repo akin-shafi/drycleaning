@@ -2,23 +2,19 @@
   "development": {
     "username": "root",
     "password": null,
-    "database": "drycleaningdb",
+    "database": "logistics",
     "host": "127.0.0.1",
     "dialect": "mysql"
-    
   },
   "test": {
-    "username": "admin",
-    "password": "nextauthPass123",
-    "database": "database_test",
-    "host": "nextauth.cj8ckwky0n4e.eu-central-1.rds.amazonaws.com",
+    "username": "root",
+    "password": null,
+    "database": "logistics",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
-    "username": "admin",
-    "password": "nextauthPass123",
-    "database": "database_production",
-    "host": "nextauth.cj8ckwky0n4e.eu-central-1.rds.amazonaws.com",
+    "use_env_variable": "DATABASE_URL",
     "dialect": "mysql"
   }
 }

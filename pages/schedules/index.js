@@ -128,12 +128,12 @@ function ScheduleList({ schedules }) {
 export default ScheduleList;
 
 export async function getServerSideProps() {
-	let api = process.env.NEXT_PUBLIC_API_LOCAL;
-
-	const response = await fetch(`${api}/schedules`);
+	const END_POINT = process.env.NEXT_PUBLIC_API_LOCAL;
+	console.log(END_POINT);
+	const response = await fetch(`${END_POINT}/schedules`);
 	const data = await response.json();
 
-	// console.log(data);
+	console.log(data);
 	return {
 		props: {
 			schedules: data,

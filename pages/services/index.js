@@ -4,17 +4,16 @@ import Menu from "../../components/Menu";
 import Link from "next/link";
 import { Modal, Button, Form } from "react-bootstrap";
 
-function UserList({ users }) {
+function UserList({ services }) {
 	const [currentPage, setCurrentPage] = useState(1);
-	const [usersPerPage] = useState(5);
+	const [servicesPerPage] = useState(5);
 	const [search, setSearch] = useState("");
-	const [filteredUsers, setFilteredUsers] = useState(users);
+	const [filteredServices, setFilteredServices] = useState(services);
 
 	const [isModalOpen, setModalOpen] = useState(false);
 	const handleOpenModal = () => {
 		setFullName("");
 		setUserEmail("");
-		setUserPassword("");
 		setModalOpen(true);
 	};
 	const handleCloseModal = () => setModalOpen(false);
@@ -24,11 +23,10 @@ function UserList({ users }) {
 
 	const [fullName, setFullName] = useState("");
 	const [userEmail, setUserEmail] = useState("");
-	const [userPassword, setUserPassword] = useState("");
 
 	const handleAddUser = async (event) => {
 		event.preventDefault();
-		const response = await fetch("/api/users", {
+		const response = await fetch("/api/services", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -36,14 +34,13 @@ function UserList({ users }) {
 			body: JSON.stringify({
 				name: fullName,
 				email: userEmail,
-				password: userPassword,
 			}),
 		});
 
 		// const data = await response.json();
 		if (response.ok) {
-			const updatedUsers = await fetchUpdatedUsers();
-			setFilteredUsers(updatedUsers);
+			const updatedServices = await fetchUpdatedServices();
+			setFilteredServices(updatedServices);
 			setModalOpen(false);
 		} else {
 			const errorData = await response.json();
@@ -55,7 +52,6 @@ function UserList({ users }) {
 		setSelectedUser(user);
 		setFullName(user.name);
 		setUserEmail(user.email);
-		setUserPassword(user.password);
 		setShowModal(true);
 	};
 
@@ -63,7 +59,7 @@ function UserList({ users }) {
 		e.preventDefault();
 		// Add logic to handle updating user data
 		const api = NEXT_PUBLIC_API_LOCAL;
-		const response = await fetch(`${api}/users/${selectedUser.id}`, {
+		const response = await fetch(`${api}/services/${selectedUser.id}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
@@ -71,13 +67,12 @@ function UserList({ users }) {
 			body: JSON.stringify({
 				name: fullName,
 				email: userEmail,
-				password: userPassword,
 			}),
 		});
 
 		if (response.ok) {
-			const updatedUsers = await fetchUpdatedUsers();
-			setFilteredUsers(updatedUsers);
+			const updatedServices = await fetchUpdatedServices();
+			setFilteredServices(updatedServices);
 			setShowModal(false);
 		} else {
 			const errorData = await response.json();
@@ -85,48 +80,57 @@ function UserList({ users }) {
 		}
 	};
 
-	const fetchUpdatedUsers = async () => {
-		const response = await fetch("/api/users");
+	const fetchUpdatedServices = async () => {
+		const response = await fetch("/api/services");
 		if (response.ok) {
 			const data = await response.json();
 			return data;
 		} else {
-			alert("Failed to fetch users");
-			return filteredUsers;
+			alert("Failed to fetch services");
+			return filteredServices;
 		}
 	};
 
 	const handleDeleteUser = (userId) => {
 		if (window.confirm("Are you sure you want to delete this user?")) {
 			// Here, simulate the deletion logic
-			const updatedUsers = filteredUsers.filter((user) => user.id !== userId);
-			setFilteredUsers(updatedUsers);
+			const updatedServices = filteredServices.filter(
+				(user) => user.id !== userId
+			);
+			setFilteredServices(updatedServices);
 			// Typically, here you would also send a request to the backend to delete the user
 			console.log("user deleted:", userId);
 		}
 	};
 
 	useEffect(() => {
-		setFilteredUsers(
-			users.filter(
+		setFilteredServices(
+			services.filter(
 				(user) =>
 					user.name.toLowerCase().includes(search.toLowerCase()) ||
 					user.email.toLowerCase().includes(search.toLowerCase())
 			)
 		);
-	}, [search, users]);
+	}, [search, services]);
 
-	// Get current users
-	const indexOfLastUser = currentPage * usersPerPage;
-	const indexOfFirstUser = indexOfLastUser - usersPerPage;
-	const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+	// Get current services
+	const indexOfLastUser = currentPage * servicesPerPage;
+	const indexOfFirstUser = indexOfLastUser - servicesPerPage;
+	const currentservices = filteredServices.slice(
+		indexOfFirstUser,
+		indexOfLastUser
+	);
 
 	// Change page
 	const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
 	// Calculate total pages for pagination
 	const pageNumbers = [];
-	for (let i = 1; i <= Math.ceil(filteredUsers.length / usersPerPage); i++) {
+	for (
+		let i = 1;
+		i <= Math.ceil(filteredServices.length / servicesPerPage);
+		i++
+	) {
 		pageNumbers.push(i);
 	}
 
@@ -148,13 +152,13 @@ function UserList({ users }) {
 							<div className="card ">
 								<div className="d-flex justify-content-between">
 									<h5 className="mb-0 text-white p-4">
-										users ({filteredUsers.length})
+										services ({filteredServices.length})
 									</h5>
 									<div className=" p-4">
 										<input
 											type="text"
 											className="form-control"
-											placeholder="Search users..."
+											placeholder="Search services..."
 											value={search}
 											onChange={(e) => {
 												setSearch(e.target.value);
@@ -175,7 +179,7 @@ function UserList({ users }) {
 											</tr>
 										</thead>
 										<tbody>
-											{currentUsers.map((user, index) => (
+											{currentservices.map((user, index) => (
 												<tr key={user.id}>
 													<td>{indexOfFirstUser + index + 1}</td>
 													<td>{user.name}</td>
@@ -231,7 +235,7 @@ function UserList({ users }) {
 				onHide={() => setModalOpen(false)}
 				backdrop="static">
 				<Modal.Header closeButton={false}>
-					<Modal.Title id="main-modal-title">Add new user</Modal.Title>
+					<Modal.Title id="main-modal-title">Add new services</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
 					<form
@@ -255,17 +259,6 @@ function UserList({ users }) {
 								type="email"
 								value={userEmail}
 								onChange={(e) => setUserEmail(e.target.value)}
-								placeholder="Enter email"
-							/>
-						</div>
-
-						<div className="col-6 form-group mb-2">
-							<label className="control-label">password:</label>
-							<input
-								className="form-control"
-								type="password"
-								value={userPassword}
-								onChange={(e) => setUserPassword(e.target.value)}
 								placeholder="Enter email"
 							/>
 						</div>
@@ -315,14 +308,6 @@ function UserList({ users }) {
 								onChange={(e) => setUserEmail(e.target.value)}
 							/>
 						</Form.Group>
-						<Form.Group controlId="formPassword">
-							<Form.Label>Password:</Form.Label>
-							<Form.Control
-								type="password"
-								value={userPassword}
-								onChange={(e) => setUserPassword(e.target.value)}
-							/>
-						</Form.Group>
 
 						<div className="mt-4 d-flex justify-content-center">
 							<button
@@ -349,15 +334,15 @@ function UserList({ users }) {
 export default UserList;
 
 export async function getServerSideProps() {
-	let api = process.env.NEXT_PUBLIC_API_LOCAL;
+	const END_POINT = process.env.NEXT_PUBLIC_API_LOCAL;
 
-	const response = await fetch(`${api}/users`);
+	const response = await fetch(`${END_POINT}/services`);
 	const data = await response.json();
 
 	console.log(data);
 	return {
 		props: {
-			users: data,
+			services: data,
 		},
 	};
 }
