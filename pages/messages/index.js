@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import Menu from "../../components/Menu";
-// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
-// import { TabContent } from "react-bootstrap";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 function MessageList({ messages, categories }) {
@@ -46,7 +45,7 @@ function MessageList({ messages, categories }) {
 	}
 
 	const fetchSubject = async (subject) => {
-		const api = NEXT_PUBLIC_API_LOCAL;
+		const api = NEXT_PUBLIC_API_URL;
 		const response = await fetch(`${api}/messages?subject=${subject}`);
 		if (response.ok) {
 			const data = await response.json();
@@ -154,7 +153,18 @@ function MessageList({ messages, categories }) {
 export default MessageList;
 
 export async function getServerSideProps(context) {
-	let api = process.env.NEXT_PUBLIC_API_LOCAL;
+	const session = await getSession(context);
+	const email = session?.user?.email;
+	if (!session || session.user.status === "2FA") {
+		return {
+			redirect: {
+				destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
+				permanent: false,
+			},
+		};
+	}
+
+	const api = process.env.NEXT_PUBLIC_API_URL;
 	const { query } = context;
 	const { subject } = query;
 	const queryString = subject ? subject : "";

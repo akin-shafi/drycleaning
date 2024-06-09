@@ -5,6 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 // import { getServerSideProps } from "@/pages/dashboard";
 import UserAvatar from "./UserAvatar";
+import LogoutButton from "./LogoutButton";
 
 function SideBarMenu() {
 	const router = useRouter();
@@ -12,10 +13,9 @@ function SideBarMenu() {
 	const isLoggedIn = session && session.user;
 	// console.log(session);
 
-
 	const handleSignOut = async (e) => {
 		e.preventDefault();
-		await signOut({ callbackUrl: "/login" });
+		await signOut({ callbackUrl: "/auth/signout" });
 	};
 
 	useEffect(() => {
@@ -120,12 +120,13 @@ function SideBarMenu() {
 				{/* <!-- Sidebar Footer --> */}
 				<ul className="sidebar-footer sidebar-menu mb-0">
 					<li>
-						<div
+						<LogoutButton type="footer" />
+						{/* <div
 							onClick={handleSignOut}
 							className="pointer">
 							<i className="ti ti-logout me-2 text-muted"></i>
 							<small className="text-muted fw-medium ms-1">Log Out</small>
-						</div>
+						</div> */}
 					</li>
 				</ul>
 				{/* <!-- Sidebar Footer --> */}
@@ -298,15 +299,15 @@ function SideBarMenu() {
 										</Link>
 
 										<div className="dropdown-divider border-top"></div>
-
-										<div
+										<LogoutButton type="header" />
+										{/* <div
 											className="dropdown-item text-dark pointer"
 											onClick={handleSignOut}>
 											<span className="mb-0 d-inline-block me-1">
 												<i className="ti ti-logout"></i>
 											</span>
 											Log out
-										</div>
+										</div> */}
 									</div>
 								</div>
 							</li>

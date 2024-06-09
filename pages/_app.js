@@ -55,7 +55,8 @@ export default function App({ Component, pageProps }) {
 			</Head>
 			<SessionProvider session={pageProps.session}>
 				<SessionTimeout timeout={300000} /> {/* 5 minutes timeout */}
-				{/* <SessionTimeout timeout={10000} />  */} {/* 10 Seconds */}
+				{/* <SessionTimeout timeout={10000} /> */}
+				{/* 10 Seconds */}
 				<Component {...pageProps} />
 			</SessionProvider>
 		</>

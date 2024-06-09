@@ -19,7 +19,7 @@ function Home() {
 		async function fetchServiceData() {
 			const response = await fetch("/api/services");
 			const data = await response.json();
-			// console.log(data);
+			console.log(data);
 			setServiceData(data);
 			setIsLoading(false);
 		}
@@ -277,6 +277,30 @@ function Home() {
 
 						<div className="row d-flex justify-content-center">
 							{/* service goes here */}
+							{serviceData.map((service, index) => (
+								<div
+									className="col-xl-4 col-lg-6 col-md-6"
+									key={service.id}>
+									<div
+										className="card border-0"
+										style={{ position: "relative" }}>
+										<div
+											className="p-4"
+											style={{ marginBottom: "-40px", zIndex: "100" }}>
+											<img
+												className="img-fluid card-img-top"
+												src={`../images/items/${service.file}`}
+												alt=""
+											/>
+										</div>
+										<div className="card-body text-center pt-4">
+											<div className="notable-drops-content-img"></div>
+											<h4 className="card-title pt-3">{service.heading}</h4>
+											<p>{service.text}</p>
+										</div>
+									</div>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
@@ -536,7 +560,7 @@ function Home() {
 export default Home;
 
 // export async function getServerSideProps() {
-// 	const response = await fetch(`${process.env.NEXT_PUBLIC_API_LOCAL}/services`);
+// 	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`);
 // 	const data = await response.json();
 // 	return {
 // 		props: {

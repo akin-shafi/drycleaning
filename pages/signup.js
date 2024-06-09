@@ -86,6 +86,7 @@ const SignupPage = () => {
 
 		try {
 			// const response = await fetch("/api/users");
+			// const res = await fetch("/api/auth/register", {
 			const res = await fetch("/api/users", {
 				method: "POST",
 				headers: {
@@ -120,7 +121,7 @@ const SignupPage = () => {
 			<section className="py-3 py-md-5">
 				<div className="container">
 					<div className="row justify-content-center">
-						<div className="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4">
+						<div className="col-12 col-sm-10 col-md-8 col-lg-7 col-xl-9 col-xxl-6">
 							<div className="rounded-3 shadow-sm">
 								<div className="card-body p-1">
 									<div className="text-center mb-3">

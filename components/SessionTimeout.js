@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import { publicRoutes } from "../lib/publicRoutes";
+import { publicRoutes } from "@/lib/publicRoutes";
 
 const SessionTimeout = ({ timeout = 300000 }) => {
 	// timeout in milliseconds (e.g., 5 minutes)

@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/syncDatabase.js",
     "start": "next start",
     "lint": "next lint",
     "server-json": "json-server --watch db.json --port 4000"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",
     "json-server": "^1.0.0-alpha.23",
@@ -18,6 +19,9 @@
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "next-connect": "^1.0.0",
+    "next-session": "^4.0.5",
+    "nodemailer": "^6.9.13",
+    "nookies": "^2.5.2",
     "react": "18.3.1",
     "react-bootstrap": "^2.10.2",
     "react-dom": "18.3.1",

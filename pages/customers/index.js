@@ -83,7 +83,7 @@ function CustomerList({ customers }) {
 		e.preventDefault();
 
 		// Add logic to handle updating customer data
-		const api = NEXT_PUBLIC_API_LOCAL;
+		const api = NEXT_PUBLIC_API_URL;
 		const response = await fetch(`${api}/customers/${selectedCustomer.id}`, {
 			method: "PUT",
 			headers: {
@@ -416,20 +416,20 @@ export default CustomerList;
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	let api = process.env.NEXT_PUBLIC_API_LOCAL;
-
-	const response = await fetch(`${api}/customers`);
-	const data = await response.json();
-
-	// console.log(data);
-	if (!session) {
+	const email = session?.user?.email;
+	if (!session || session.user.status === "2FA") {
 		return {
 			redirect: {
-				destination: `${process.env.LOGIN_URL}`, //redirect to login page
+				destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
 				permanent: false,
 			},
 		};
 	}
+
+	const api = process.env.NEXT_PUBLIC_API_URL;
+	const response = await fetch(`${api}/customers`);
+	const data = await response.json();
+
 	return {
 		props: {
 			customers: data,

@@ -1,45 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-
+import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+
 import Link from "next/link";
-import Image from "next/image";
-
 import MessageComponent from "@/components/MessageComponent";
-
-function Login() {
+function SignIn() {
 	const router = useRouter();
+	const { data: session, status: sessionStatus } = useSession();
 	const searchParams = useSearchParams();
-	const message = searchParams.get("message");
+	const sessionMessage = searchParams.get("message");
+	const [email, setEmail] = useState("sakinropo@gmail.com");
+	const [password, setPassword] = useState("User@123");
 	const [error, setError] = useState("");
 
-	const { data: session, status: sessionStatus } = useSession();
-
-	useEffect(() => {
-		if (sessionStatus === "authenticated") {
-			router.push("/dashboard");
-		}
-	}, [sessionStatus, router]);
-
-	const isValidEmail = (email) => {
-		const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		return emailRegex.test(email);
-	};
+	// useEffect(() => {
+	// 	if (session?.user?.status === "authorized") {
+	// 		router.push("/dashboard");
+	// 	}
+	// }, [session, router]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const email = e.target[0].value;
-		const password = e.target[1].value;
-
-		if (!isValidEmail(email)) {
-			setError("Email is invalid");
-			return;
-		}
-
-		if (!password || password.length < 8) {
-			setError("Password is invalid");
-			return;
-		}
 
 		const res = await signIn("credentials", {
 			redirect: false,
@@ -47,116 +29,121 @@ function Login() {
 			password,
 		});
 
-		if (res?.error) {
+		if (res.error) {
 			setError("Invalid email or password");
-			if (res?.url) router.replace("/dashboard");
 		} else {
 			setError("");
+			if (session?.user?.status === "2FA") {
+				router.push({
+					pathname: "/verification",
+					query: { email },
+				});
+			} else {
+				router.push("/dashboard");
+			}
 		}
 	};
-
-	if (sessionStatus === "loading") {
-		return <h1>Loading...</h1>;
-	}
-
 	return (
-		// Your form markup remains the same
-
 		<section className="py-3 py-md-5">
 			<div className="container">
 				<div className="row justify-content-center">
-					<div className="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4">
+					<div className="col-12 col-sm-10 col-md-8 col-lg-7 col-xl-7 col-xxl-6">
 						<div className="rounded-3 shadow-sm">
 							<div className="card-body p-1">
 								<div className="text-center mb-3">
-									<Link href="/login">
-										<Image
-											src="/images/logo.png"
-											alt="Logo"
-											width={175}
-											height={120}
-										/>
-									</Link>
+									<img
+										src="/images/logo.png"
+										alt="Logo"
+										width={175}
+										height={120}
+									/>
 								</div>
 								<div className="my-4">
-									<div className="">
-										<MessageComponent message={message} />
-									</div>
+									<MessageComponent message={sessionMessage} />
 								</div>
 								<h2 className="text-center text-muted">Login</h2>
 								<h2 className="fs-6 fw-normal text-center text-secondary mb-4">
-									Fill in your details correctly login
+									Fill in your details to login
 								</h2>
 
 								<form onSubmit={handleSubmit}>
-									<div className="mb-3">
-										<div className="text-muted">Email</div>
-										<div className="form-floating mb-3">
-											<input
-												type="email"
-												className="form-control"
-												name="email"
-												id="email"
-												placeholder="name@example.com"
-												required
-											/>
-											<label
-												htmlFor="email"
-												className="form-label">
-												Email
-											</label>
-										</div>
-									</div>
-									<div className="mb-3">
-										<div className="text-muted">Password</div>
-										<div className="form-floating mb-3">
-											<input
-												type="password"
-												className="form-control"
-												name="password"
-												id="password"
-												placeholder="Password"
-												required
-											/>
-											<label
-												htmlFor="password"
-												className="form-label">
-												Password
-											</label>
-										</div>
-									</div>
-									<div className="mb-3">
-										<div className="d-flex gap-2 justify-content-between">
-											<div className="form-check">
+									<>
+										<div className="mb-3">
+											<div className="text-muted">Email</div>
+											<div className="form-floating mb-3">
 												<input
-													className="form-check-input"
-													type="checkbox"
-													name="rememberMe"
-													id="rememberMe"
+													type="email"
+													className="form-control"
+													name="email"
+													id="email"
+													placeholder="name@example.com"
+													required
+													value={email}
+													onChange={(e) => setEmail(e.target.value)}
 												/>
 												<label
-													className="form-check-label text-secondary"
-													htmlFor="rememberMe">
-													Keep me logged in
+													htmlFor="email"
+													className="form-label">
+													Email
 												</label>
 											</div>
-											<Link
-												href="/forget-password"
-												className="link-brand text-decoration-none">
-												Forgot password?
-											</Link>
 										</div>
-									</div>
-									<div className="mb-3">
-										<div className="d-grid my-3">
-											<button
-												className="btn btn-brand btn-lg"
-												type="submit">
-												Log in
-											</button>
-											<p className="text-danger mb-4">{error && error}</p>
+										<div className="mb-3">
+											<div className="text-muted">Password</div>
+											<div className="form-floating mb-3">
+												<input
+													type="password"
+													className="form-control"
+													name="password"
+													id="password"
+													placeholder="Password"
+													required
+													value={password}
+													onChange={(e) => setPassword(e.target.value)}
+												/>
+												<label
+													htmlFor="password"
+													className="form-label">
+													Password
+												</label>
+											</div>
 										</div>
-									</div>
+										<div className="mb-3">
+											<div className="d-flex gap-2 justify-content-between">
+												<div className="form-check">
+													<input
+														className="form-check-input"
+														type="checkbox"
+														name="rememberMe"
+														id="rememberMe"
+													/>
+													<label
+														className="form-check-label text-secondary"
+														htmlFor="rememberMe">
+														Keep me logged in
+													</label>
+												</div>
+												<Link
+													href="/forget-password"
+													className="link-brand text-decoration-none">
+													Forgot password?
+												</Link>
+											</div>
+										</div>
+
+										<div className="mb-3">
+											<div className="d-grid my-3">
+												<button
+													className="btn btn-brand btn-lg"
+													type="submit">
+													Log in
+												</button>
+												<div>
+													<p className="text-danger mb-4">{error && error}</p>
+												</div>
+											</div>
+										</div>
+									</>
 
 									<div className="mb-3">
 										<p className="m-0 text-secondary text-center">
@@ -171,10 +158,11 @@ function Login() {
 									<div className="d-flex justify-content-center ">
 										<button
 											className="btn btn-outline-light me-3"
+											type="button"
 											onClick={() => {
 												signIn("github");
 											}}>
-											Login in with GitHub
+											Log in with GitHub
 										</button>
 
 										<Link
@@ -193,4 +181,4 @@ function Login() {
 	);
 }
 
-export default Login;
+export default SignIn;

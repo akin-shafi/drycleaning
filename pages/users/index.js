@@ -55,15 +55,16 @@ function UserList({ users }) {
 		setSelectedUser(user);
 		setFullName(user.name);
 		setUserEmail(user.email);
-		setUserPassword(user.password);
+		setUserPassword();
 		setShowModal(true);
 	};
 
 	const handleUpdateUser = async (e) => {
 		e.preventDefault();
 		// Add logic to handle updating user data
-		const api = NEXT_PUBLIC_API_LOCAL;
-		const response = await fetch(`${api}/users/${selectedUser.id}`, {
+		// const api = process.env.NEXT_PUBLIC_API_URL;
+		// const response = await fetch(`${api}/users/${selectedUser.id}`, {
+		const response = await fetch(`/api/users/${selectedUser.id}`, {
 			method: "PUT",
 			headers: {
 				"Content-Type": "application/json",
@@ -336,7 +337,7 @@ function UserList({ users }) {
 								variant="primary"
 								className="btn btn-brand"
 								type="submit">
-								Save
+								Update Record
 							</button>
 						</div>
 					</Form>
@@ -349,7 +350,7 @@ function UserList({ users }) {
 export default UserList;
 
 export async function getServerSideProps() {
-	let api = process.env.NEXT_PUBLIC_API_LOCAL;
+	let api = process.env.NEXT_PUBLIC_API_URL;
 
 	const response = await fetch(`${api}/users`);
 	const data = await response.json();

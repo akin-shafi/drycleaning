@@ -12,15 +12,19 @@ export default async function handler(req, res) {
 			}
 			return res.status(200).json(user);
 		} else if (req.method === "PUT") {
-			const updatedUser = await User.update(req.body, {
-				where: { id: id },
-				returning: true,
-			});
-			if (updatedUser[0] === 0) {
+			const user = await User.findByPk(id);
+			if (!user) {
 				return res.status(404).json({ error: "User not found" });
 			}
+
+			Object.keys(req.body).forEach((key) => {
+				user[key] = req.body[key];
+			});
+
+			await user.save(); // This will trigger the hooks
+
 			const updatedData = await User.findByPk(id);
-			res.status(200).json(updatedData);
+			return res.status(200).json(updatedData);
 		} else if (req.method === "DELETE") {
 			const result = await User.destroy({
 				where: { id: id },
@@ -28,11 +32,13 @@ export default async function handler(req, res) {
 			if (result === 0) {
 				return res.status(404).json({ error: "User not found" });
 			}
-			res.status(204).end();
+			return res.status(204).end();
 		} else {
-			res.status(405).end(); // Method Not Allowed
+			return res.status(405).end(); // Method Not Allowed
 		}
 	} catch (error) {
-		res.status(500).json({ error: error.message });
+		return res.status(500).json({ error: error.message });
 	}
 }
+
+// $2a$10$3hIiwh8QnzPceU4dqwacbOy2SJejbSl3xU8V5.U8uwV.p90CjQVIa

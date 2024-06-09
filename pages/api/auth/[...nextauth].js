@@ -1,10 +1,10 @@
-// pages/api/auth/[...nextauth].js
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import sequelize from "@/utils/db";
+import { generateAndSendTwoFactorToken } from "@/pages/api/twoFactorAuth";
 
 const authOptions = {
 	providers: [
@@ -18,75 +18,88 @@ const authOptions = {
 			credentials: {
 				email: { label: "Email", type: "text" },
 				password: { label: "Password", type: "password" },
+				rememberMe: { label: "Remember Me", type: "checkbox" },
 			},
 			async authorize(credentials) {
-				await sequelize.authenticate();
 				try {
+					await sequelize.authenticate();
 					const user = await User.findOne({
 						where: { email: credentials.email },
 					});
+
 					if (!user) {
-						throw new Error("No user found with the provided email.");
+						console.error("No user found with this email");
+						throw new Error("No user found with this email");
 					}
-					const isPasswordCorrect = await bcrypt.compare(
+
+					const isValidPassword = await bcrypt.compare(
 						credentials.password,
 						user.password
 					);
-					if (!isPasswordCorrect) {
-						throw new Error("Password is incorrect.");
+
+					if (!isValidPassword) {
+						console.error("Incorrect password");
+						throw new Error("Incorrect password");
 					}
-					return user;
-				} catch (err) {
-					console.error("Authorize error:", err);
-					throw new Error("Authentication failed.");
+					console.log("twoFactorEnabled Checker:", user.twoFactorEnabled);
+					if (user.twoFactorEnabled == true) {
+						await generateAndSendTwoFactorToken(user);
+						console.log("Two-factor token generated and sent");
+						return {
+							id: user.id,
+							email: user.email,
+							name: user.name,
+							twoFactorEnabled: true,
+							status: "2FA",
+						};
+					}
+
+					console.log(
+						"User authenticated successfully without two-factor authentication"
+					);
+					return {
+						id: user.id,
+						email: user.email,
+						name: user.name,
+						twoFactorEnabled: false,
+						status: "authorized",
+					};
+				} catch (error) {
+					console.error("Error in authorize function:", error);
+					throw new Error("Authorization failed");
 				}
 			},
 		}),
 	],
 	session: {
 		jwt: true,
-		maxAge: 5 * 60, // 5 minutes
 	},
 	callbacks: {
 		async jwt({ token, user }) {
 			if (user) {
 				token.id = user.id;
+				token.email = user.email;
+				token.name = user.name;
+				token.twoFactorEnabled = user.twoFactorEnabled;
+				token.status = user.status;
 			}
 			return token;
 		},
 		async session({ session, token }) {
-			if (token?.id) {
-				session.user = token;
-				session.user.email = token.email;
-			}
+			session.user = {
+				id: token.id,
+				email: token.email,
+				name: token.name,
+				twoFactorEnabled: token.twoFactorEnabled,
+				status: token.status,
+			};
 			return session;
 		},
-		async signIn({ user, account }) {
-			await sequelize.authenticate();
-			if (account?.provider == "credentials") {
-				console.log("Login Type:", account);
-				return true;
-			}
-			if (account?.provider == "github") {
-				try {
-					const existingUser = await User.findOne({
-						where: { email: user.email },
-					});
-					if (!existingUser) {
-						await User.create({
-							email: user.email,
-							name: user.name,
-							image: user.image,
-						});
-					}
-					return true;
-				} catch (err) {
-					console.error("Error saving user:", err);
-					return false;
-				}
-			}
-			return true;
-		},
+	},
+	pages: {
+		signIn: "/login",
+		signOut: "/auth/logout", // Custom signout page
+		error: "/auth/error",
 	},
 };
 

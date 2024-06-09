@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { signIn, useSession, getSession } from "next-auth/react";
+import withAuth from "@/hoc/withAuth";
+
 import Menu from "../../components/Menu";
 import Link from "next/link";
 import { Modal } from "react-bootstrap";
@@ -327,11 +329,21 @@ function Dashboard({ customers, schedules, messages }) {
 	);
 }
 
-export default Dashboard;
+export default withAuth(Dashboard);
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	const api = process.env.NEXT_PUBLIC_API_LOCAL;
+	const email = session?.user?.email;
+	if (!session || session.user.status === "2FA") {
+		return {
+			redirect: {
+				destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
+				permanent: false,
+			},
+		};
+	}
+
+	const api = process.env.NEXT_PUBLIC_API_URL;
 	const customerResponse = await fetch(`${api}/customers`);
 	const customerData = await customerResponse.json();
 
@@ -344,15 +356,6 @@ export async function getServerSideProps(context) {
 	const messageData = await messageResponse.json();
 
 	const limitedMessageData = messageData.slice(-3);
-
-	if (!session) {
-		return {
-			redirect: {
-				destination: `${process.env.LOGIN_URL}`, //redirect to login page
-				permanent: false,
-			},
-		};
-	}
 	return {
 		props: {
 			customers: session ? customerData : "",

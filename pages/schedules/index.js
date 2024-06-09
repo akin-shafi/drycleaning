@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import Menu from "../../components/Menu";
-// import TopMenu from "../../components/top-menu";
 import Link from "next/link";
+import { getSession } from "next-auth/react";
+
 function ScheduleList({ schedules }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [schedulesPerPage] = useState(5);
@@ -127,13 +128,21 @@ function ScheduleList({ schedules }) {
 
 export default ScheduleList;
 
-export async function getServerSideProps() {
-	const END_POINT = process.env.NEXT_PUBLIC_API_LOCAL;
-	console.log(END_POINT);
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
+	const email = session?.user?.email;
+	if (!session || session.user.status === "2FA") {
+		return {
+			redirect: {
+				destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
+				permanent: false,
+			},
+		};
+	}
+
+	const END_POINT = process.env.NEXT_PUBLIC_API_URL;
 	const response = await fetch(`${END_POINT}/schedules`);
 	const data = await response.json();
-
-	console.log(data);
 	return {
 		props: {
 			schedules: data,
