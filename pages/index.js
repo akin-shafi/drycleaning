@@ -17,7 +17,8 @@ function Home() {
 
 	useEffect(() => {
 		async function fetchServiceData() {
-			const response = await fetch("/api/services");
+			const API = process.env.NEXT_PUBLIC_REMOTE_URL;
+			const response = await fetch(`${API}/api/services`);
 			const data = await response.json();
 			console.log(data);
 			setServiceData(data);
@@ -48,9 +49,9 @@ function Home() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-
+		const API = process.env.NEXT_PUBLIC_REMOTE_URL;
 		try {
-			const response = await fetch("/api/services", {
+			const response = await fetch(`${API}/api/services`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
