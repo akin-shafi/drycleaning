@@ -6,7 +6,7 @@ import User from "@/models/User";
 import sequelize from "@/utils/db";
 import { generateAndSendTwoFactorToken } from "@/pages/api/twoFactorAuth";
 
-const authOptions = {
+export const authOptions = {
 	providers: [
 		GitHubProvider({
 			clientId: process.env.GITHUB_ID,

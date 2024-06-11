@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { signIn, useSession, getSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import withAuth from "@/hoc/withAuth";
 
 import Menu from "../../components/Menu";
 import Link from "next/link";
 import { Modal } from "react-bootstrap";
 
-function Dashboard({ customers, schedules, messages }) {
+function Dashboard({
+	customers,
+	schedules,
+	messages,
+	customerError,
+	scheduleError,
+	messageError,
+}) {
 	const { data: session, status } = useSession();
 	const loading = status === "loading";
 
@@ -14,7 +21,6 @@ function Dashboard({ customers, schedules, messages }) {
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [customerEmail, setCustomerEmail] = useState("");
-
 	const [customerPhone, setCustomerPhone] = useState("");
 	const [customerAddress, setCustomerAddress] = useState("");
 
@@ -32,15 +38,18 @@ function Dashboard({ customers, schedules, messages }) {
 				first_name: firstName,
 				last_name: lastName,
 				email: customerEmail,
+				phone: customerPhone,
+				address: customerAddress,
 			}),
 		});
 
 		if (response.ok) {
 			setModalOpen(false);
-			// Optionally reset form or refresh data
 			setFirstName("");
+			setLastName("");
 			setCustomerEmail("");
-			// Refresh customers list if needed
+			setCustomerPhone("");
+			setCustomerAddress("");
 		} else {
 			alert("Failed to add customer");
 		}
@@ -61,6 +70,7 @@ function Dashboard({ customers, schedules, messages }) {
 	}
 
 	const isLoggedIn = session && session.user;
+
 	return (
 		<>
 			<Modal
@@ -136,7 +146,7 @@ function Dashboard({ customers, schedules, messages }) {
 							</button>
 							<button
 								type="submit"
-								className="btn btn-brand ">
+								className="btn btn-brand">
 								Add
 							</button>
 						</div>
@@ -158,38 +168,42 @@ function Dashboard({ customers, schedules, messages }) {
 									)}
 								</h5>
 							</div>
-							{/* Session USer {session} */}
 							<div className="row">
 								<div className="col-lg-5 mt-4">
 									<div className="card border-0 rounded shadow p-4">
 										<h5 className="mb-0 mb-3 text-white">
 											Total Customers ({customers.length})
 										</h5>
-										<div className="text-muted mb-0 text-center">
-											<img
-												src={`../images/${
-													customers.length === 0
-														? "avatar.png"
-														: "avatar-colored.png"
-												}`}
-												className="img-fluid"
-												width={100}
-											/>
-
-											<div className="h6 py-1">No recently added Customers</div>
-											<div className="py-1">
-												<button
-													className="btn btn-lg btn-brand"
-													onClick={handleOpenModal}>
-													<i className="ti ti-plus me-2"></i> Add Customer
-												</button>
+										{customerError ? (
+											<div className="alert alert-danger">{customerError}</div>
+										) : (
+											<div className="text-muted mb-0 text-center">
+												<img
+													src={`../images/${
+														customers.length === 0
+															? "avatar.png"
+															: "avatar-colored.png"
+													}`}
+													className="img-fluid"
+													width={100}
+												/>
+												<div className="h6 py-1">
+													No recently added Customers
+												</div>
+												<div className="py-1">
+													<button
+														className="btn btn-lg btn-brand"
+														onClick={handleOpenModal}>
+														<i className="ti ti-plus me-2"></i> Add Customer
+													</button>
+												</div>
+												<Link
+													href="/customers/"
+													className="py-2 link-brand">
+													View all <i className="ti ti-arrow-right ms-2"></i>
+												</Link>
 											</div>
-											<Link
-												href="/customers/"
-												className="py-2 link-brand">
-												View all <i className="ti ti-arrow-right ms-2"></i>
-											</Link>
-										</div>
+										)}
 									</div>
 								</div>
 								<div className="col-lg-7 mt-4">
@@ -206,53 +220,54 @@ function Dashboard({ customers, schedules, messages }) {
 												</Link>
 											</div>
 										</div>
-
-										<div className="text-muted mb-0">
-											{schedules.length === 0 ? (
-												<div
-													className="d-flex justify-content-center align-items-center  card"
-													style={{ minHeight: "220px" }}>
-													<img
-														src="../images/calendar.png"
-														className="img-fluid"
-														width={100}
-													/>
-													<div className="h6">No activity to report now</div>
-												</div>
-											) : (
-												<table className="table">
-													{/* Table Header */}
-													<thead>
-														<tr>
-															<th>#</th>
-															<th>Name</th>
-															<th>Phone</th>
-															<th>Address</th>
-															<th>Date</th>
-														</tr>
-													</thead>
-													{/* Table Body */}
-													<tbody>
-														{schedules.map((schedule, index) => (
-															<tr key={index}>
-																<td>{index + 1}</td>
-																<td>
-																	<Link
-																		className="link-brand"
-																		href={`schedules/${schedule.id}`}
-																		passHref>
-																		{schedule.name}
-																	</Link>
-																</td>
-																<td>{schedule.phone}</td>
-																<td>{schedule.address}</td>
-																<td>{schedule.date}</td>
+										{scheduleError ? (
+											<div className="alert alert-danger">{scheduleError}</div>
+										) : (
+											<div className="text-muted mb-0">
+												{schedules.length === 0 ? (
+													<div
+														className="d-flex justify-content-center align-items-center card"
+														style={{ minHeight: "220px" }}>
+														<img
+															src="../images/calendar.png"
+															className="img-fluid"
+															width={100}
+														/>
+														<div className="h6">No activity to report now</div>
+													</div>
+												) : (
+													<table className="table">
+														<thead>
+															<tr>
+																<th>#</th>
+																<th>Name</th>
+																<th>Phone</th>
+																<th>Address</th>
+																<th>Date</th>
 															</tr>
-														))}
-													</tbody>
-												</table>
-											)}
-										</div>
+														</thead>
+														<tbody>
+															{schedules.map((schedule, index) => (
+																<tr key={index}>
+																	<td>{index + 1}</td>
+																	<td>
+																		<Link
+																			className="link-brand"
+																			href={`schedules/${schedule.id}`}
+																			passHref>
+																			{schedule.name}
+																		</Link>
+																	</td>
+																	<td>{schedule.phone}</td>
+																	<td>{schedule.address}</td>
+																	<td>{schedule.date}</td>
+																</tr>
+															))}
+														</tbody>
+													</table>
+												)}
+											</div>
+										)}
 									</div>
 								</div>
 								<div className="col-12 mt-4">
@@ -269,58 +284,57 @@ function Dashboard({ customers, schedules, messages }) {
 												</Link>
 											</div>
 										</div>
-										<div className="text-muted mb-0">
-											{messages.length === 0 ? (
-												<div
-													className="d-flex justify-content-center align-items-center  card"
-													style={{ minHeight: "220px" }}>
-													<img
-														src="../images/message.png"
-														className="img-fluid"
-														width={100}
-													/>
-													<div className="h6">No data to report now</div>
-												</div>
-											) : (
-												<table className="table">
-													{/* Table Header */}
-													<thead>
-														<tr>
-															<th>#</th>
-															<th>Name</th>
-															{/* <th>Email</th> */}
-															<th>Phone</th>
-															<th>Subject</th>
-															<th>Message</th>
-														</tr>
-													</thead>
-													{/* Table Body */}
-													<tbody>
-														{messages.map((message, index) => (
-															<tr key={index}>
-																<td>{index + 1}</td>
-																<td>{message.name}</td>
-																{/* <td>{message.email}</td> */}
-																<td>{message.phone}</td>
-																<td>{message.subject}</td>
-																<td className="ellipsis">
-																	<Link
-																		className="link-brand"
-																		href={`messages/${message.id}`}
-																		passHref>
-																		{message.body}
-																	</Link>
-																</td>
+										{messageError ? (
+											<div className="alert alert-danger">{messageError}</div>
+										) : (
+											<div className="text-muted mb-0">
+												{messages.length === 0 ? (
+													<div
+														className="d-flex justify-content-center align-items-center card"
+														style={{ minHeight: "220px" }}>
+														<img
+															src="../images/message.png"
+															className="img-fluid"
+															width={100}
+														/>
+														<div className="h6">No data to report now</div>
+													</div>
+												) : (
+													<table className="table">
+														<thead>
+															<tr>
+																<th>#</th>
+																<th>Name</th>
+																<th>Phone</th>
+																<th>Subject</th>
+																<th>Message</th>
 															</tr>
-														))}
-													</tbody>
-												</table>
-											)}
-										</div>
+														</thead>
+														<tbody>
+															{messages.map((message, index) => (
+																<tr key={index}>
+																	<td>{index + 1}</td>
+																	<td>{message.name}</td>
+																	<td>{message.phone}</td>
+																	<td>{message.subject}</td>
+																	<td className="ellipsis">
+																		<Link
+																			className="link-brand"
+																			href={`messages/${message.id}`}
+																			passHref>
+																			{message.body}
+																		</Link>
+																	</td>
+																</tr>
+															))}
+														</tbody>
+													</table>
+												)}
+											</div>
+										)}
 									</div>
 								</div>
 							</div>
-							{/* <!--end row--> */}
 						</div>
 					</div>
 				</main>
@@ -330,6 +344,8 @@ function Dashboard({ customers, schedules, messages }) {
 }
 
 export default withAuth(Dashboard);
+
+import { getSession } from "next-auth/react";
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
@@ -343,24 +359,45 @@ export async function getServerSideProps(context) {
 		};
 	}
 
-	const api = process.env.NEXT_PUBLIC_API_URL;
-	const customerResponse = await fetch(`${api}/customers`);
-	const customerData = await customerResponse.json();
+	try {
+		const END_POINT = process.env.NEXT_PUBLIC_API_URL;
 
-	const scheduleResponse = await fetch(`${api}/schedules`);
-	const scheduleData = await scheduleResponse.json();
-	// Only keep the last 3 schedules
-	const limitedScheduleData = scheduleData.slice(-3);
+		// Fetch customers data
+		const customerResponse = await fetch(`${END_POINT}/customers`);
+		const customerData = await customerResponse.json();
 
-	const messageResponse = await fetch(`${api}/messages`);
-	const messageData = await messageResponse.json();
+		// Fetch schedules data
+		const scheduleResponse = await fetch(`${END_POINT}/schedules`);
+		const scheduleData = await scheduleResponse.json();
+		// Only keep the last 3 schedules
+		const limitedScheduleData = scheduleData.slice(-3);
 
-	const limitedMessageData = messageData.slice(-3);
-	return {
-		props: {
-			customers: session ? customerData : "",
-			schedules: session ? limitedScheduleData : "",
-			messages: session ? limitedMessageData : "",
-		},
-	};
+		// Fetch messages data
+		const messageResponse = await fetch(`${END_POINT}/messages`);
+		const messageData = await messageResponse.json();
+		const limitedMessageData = messageData.slice(-3);
+
+		return {
+			props: {
+				customers: customerData,
+				schedules: limitedScheduleData,
+				messages: limitedMessageData,
+				customerError: null,
+				scheduleError: null,
+				messageError: null,
+			},
+		};
+	} catch (error) {
+		// If an error occurs during fetching, set error states for each data source
+		return {
+			props: {
+				customers: [],
+				schedules: [],
+				messages: [],
+				customerError: "Error fetching customer data: " + error.message,
+				scheduleError: "Error fetching schedule data: " + error.message,
+				messageError: "Error fetching message data: " + error.message,
+			},
+		};
+	}
 }

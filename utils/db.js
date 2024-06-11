@@ -1,4 +1,3 @@
-// utils/db.js
 import { Sequelize } from "sequelize";
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
@@ -15,5 +14,14 @@ const connect = async () => {
 	}
 };
 
-export { sequelize, connect };
+const syncDatabase = async () => {
+	try {
+		await sequelize.sync({ alter: true }); // or any other sync options you need
+		console.log("Database synchronized successfully.");
+	} catch (error) {
+		console.error("Error synchronizing the database:", error);
+	}
+};
+
+export { sequelize, connect, syncDatabase };
 export default sequelize;

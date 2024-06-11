@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
+import axios from "axios";
 import { Modal, Form } from "react-bootstrap";
-function Home() {
-	const [isLoading, setIsLoading] = useState(true);
-	const [serviceData, setServiceData] = useState(true);
+// export default function Home({ servicesRecord }) {
+const Home = ({ services, error }) => {
 	const [modalIsOpen, setModalIsOpen] = useState(false);
 	const [formData, setFormData] = useState({
 		name: "",
@@ -15,21 +15,25 @@ function Home() {
 		comment: "",
 	});
 
-	useEffect(() => {
-		async function fetchServiceData() {
-			const API = process.env.NEXT_PUBLIC_REMOTE_URL;
-			const response = await fetch(`${API}/api/services`);
-			const data = await response.json();
-			console.log(data);
-			setServiceData(data);
-			setIsLoading(false);
-		}
-		fetchServiceData();
-	}, []);
+	// useEffect(() => {
+	// 	async function fetchServiceData() {
+	// 		try {
+	// 			const API = process.env.NEXT_PUBLIC_API_URL;
+	// 			const response = await axios.get(`${API}/services`);
+	// 			const data = response.data;
+	// 			setServiceData(data);
+	// 		} catch (error) {
+	// 			console.error("Error fetching service data:", error);
+	// 		} finally {
+	// 			setIsLoading(false);
+	// 		}
+	// 	}
+	// 	fetchServiceData();
+	// }, []);
 
-	if (isLoading) {
-		return <h2 className="text-white">Loading...</h2>;
-	}
+	// if (isLoading) {
+	// 	return <h2 className="text-white">Loading...</h2>;
+	// }
 
 	const openModal = () => {
 		setModalIsOpen(true);
@@ -49,9 +53,9 @@ function Home() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const API = process.env.NEXT_PUBLIC_REMOTE_URL;
+		const API = process.env.NEXT_PUBLIC_API_URL;
 		try {
-			const response = await fetch(`${API}/api/services`, {
+			const response = await fetch(`${API}/services`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -278,30 +282,40 @@ function Home() {
 
 						<div className="row d-flex justify-content-center">
 							{/* service goes here */}
-							{serviceData.map((service, index) => (
-								<div
-									className="col-xl-4 col-lg-6 col-md-6"
-									key={service.id}>
+							{error ? (
+								<div className="col-12">
 									<div
-										className="card border-0"
-										style={{ position: "relative" }}>
-										<div
-											className="p-4"
-											style={{ marginBottom: "-40px", zIndex: "100" }}>
-											<img
-												className="img-fluid card-img-top"
-												src={`../images/items/${service.file}`}
-												alt=""
-											/>
-										</div>
-										<div className="card-body text-center pt-4">
-											<div className="notable-drops-content-img"></div>
-											<h4 className="card-title pt-3">{service.heading}</h4>
-											<p>{service.text}</p>
-										</div>
+										className="alert alert-danger"
+										role="alert">
+										{error}
 									</div>
 								</div>
-							))}
+							) : (
+								services.map((service) => (
+									<div
+										className="col-xl-4 col-lg-6 col-md-6"
+										key={service.id}>
+										<div
+											className="card border-0"
+											style={{ position: "relative" }}>
+											<div
+												className="p-4"
+												style={{ marginBottom: "-40px", zIndex: "100" }}>
+												<img
+													className="img-fluid card-img-top"
+													src={`../images/items/${service.file}`}
+													alt=""
+												/>
+											</div>
+											<div className="card-body text-center pt-4">
+												<div className="notable-drops-content-img"></div>
+												<h4 className="card-title pt-3">{service.heading}</h4>
+												<p>{service.text}</p>
+											</div>
+										</div>
+									</div>
+								))
+							)}
 						</div>
 					</div>
 				</div>
@@ -556,16 +570,31 @@ function Home() {
 			</div>
 		</>
 	);
-}
+};
 
 export default Home;
 
-// export async function getServerSideProps() {
-// 	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`);
-// 	const data = await response.json();
-// 	return {
-// 		props: {
-// 			services: data,
-// 		},
-// 	};
-// }
+export async function getServerSideProps() {
+	const END_POINT = process.env.NEXT_PUBLIC_API_URL;
+
+	try {
+		const response = await axios.get(`${END_POINT}/services`);
+		const data = response.data;
+
+		return {
+			props: {
+				services: data,
+				error: null,
+			},
+		};
+	} catch (error) {
+		console.error("Error fetching data:", error);
+
+		return {
+			props: {
+				services: [],
+				error: `Error fetching data from the database.${error}`,
+			},
+		};
+	}
+}

@@ -1,4 +1,4 @@
-// models/schedule.js
+// models/Service.js
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../utils/db.js"; // Ensure this path is correct
 

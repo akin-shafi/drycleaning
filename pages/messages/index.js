@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-function MessageList({ messages, categories }) {
+function MessageList({ messages, categories, messageError }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const router = useRouter();
 	const [messagesPerPage] = useState(5);
@@ -92,37 +92,42 @@ function MessageList({ messages, categories }) {
 										/>
 									</div>
 								</div>
-								<div className="table-responsive p-4">
-									<table className="table">
-										<thead>
-											<tr>
-												<th>SN</th>
-												<th>Name</th>
-												<th>Email</th>
-												<th>Phone</th>
-												<th>Subject</th>
-											</tr>
-										</thead>
-										<tbody>
-											{currentMessages.map((message, index) => (
-												<tr key={message.id}>
-													<td>{indexOfFirstMessage + index + 1}</td>
-													<td>
-														<Link
-															className="link-brand"
-															href={`messages/${message.id}`}
-															passHref>
-															{message.name}
-														</Link>
-													</td>
-													<td>{message.email}</td>
-													<td>{message.phone}</td>
-													<td>{message.subject}</td>
+								{messageError ? (
+									<div className="alert alert-danger">{messageError}</div>
+								) : (
+									// Render the component content
+									<div className="table-responsive p-4">
+										<table className="table">
+											<thead>
+												<tr>
+													<th>SN</th>
+													<th>Name</th>
+													<th>Email</th>
+													<th>Phone</th>
+													<th>Subject</th>
 												</tr>
-											))}
-										</tbody>
-									</table>
-								</div>
+											</thead>
+											<tbody>
+												{currentMessages.map((message, index) => (
+													<tr key={message.id}>
+														<td>{indexOfFirstMessage + index + 1}</td>
+														<td>
+															<Link
+																className="link-brand"
+																href={`messages/${message.id}`}
+																passHref>
+																{message.name}
+															</Link>
+														</td>
+														<td>{message.email}</td>
+														<td>{message.phone}</td>
+														<td>{message.subject}</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									</div>
+								)}
 
 								<nav className="p-3 d-flex justify-content-center">
 									<ul className="pagination">
@@ -153,43 +158,57 @@ function MessageList({ messages, categories }) {
 export default MessageList;
 
 export async function getServerSideProps(context) {
-	const session = await getSession(context);
-	const email = session?.user?.email;
-	if (!session || session.user.status === "2FA") {
+	try {
+		const session = await getSession(context);
+		const email = session?.user?.email;
+		if (!session || session.user.status === "2FA") {
+			return {
+				redirect: {
+					destination: `${process.env.VERIFY_URL}?email=${email}`,
+					permanent: false,
+				},
+			};
+		}
+
+		const api = process.env.NEXT_PUBLIC_API_URL;
+		const { query } = context;
+		const { subject } = query;
+		const queryString = subject ? subject : "";
+
+		const response = await fetch(`${api}/messages?subject=${queryString}`);
+		if (!response.ok) {
+			throw new Error("Failed to fetch messages");
+		}
+		const data = await response.json();
+
+		// Extract unique subjects from messages
+		// Create a map to count subjects
+		const subjectCounts = data.reduce((acc, message) => {
+			acc[message.subject] = (acc[message.subject] || 0) + 1;
+			return acc;
+		}, {});
+
+		// Convert to array format suitable for the component
+		const uniqueSubjects = Object.entries(subjectCounts).map(
+			([subject, count]) => {
+				return { subject, count };
+			}
+		);
+
 		return {
-			redirect: {
-				destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
-				permanent: false,
+			props: {
+				messages: data,
+				categories: uniqueSubjects,
+				messageError: null,
+			},
+		};
+	} catch (error) {
+		return {
+			props: {
+				messages: [],
+				categories: [],
+				messageError: "Error fetching messages: " + error.message,
 			},
 		};
 	}
-
-	const api = process.env.NEXT_PUBLIC_API_URL;
-	const { query } = context;
-	const { subject } = query;
-	const queryString = subject ? subject : "";
-
-	const response = await fetch(`${api}/messages?subject=${queryString}`);
-	const data = await response.json();
-
-	// Extract unique subjects from messages
-	// Create a map to count subjects
-	const subjectCounts = data.reduce((acc, message) => {
-		acc[message.subject] = (acc[message.subject] || 0) + 1;
-		return acc;
-	}, {});
-
-	// Convert to array format suitable for the component
-	const uniqueSubjects = Object.entries(subjectCounts).map(
-		([subject, count]) => {
-			return { subject, count };
-		}
-	);
-
-	return {
-		props: {
-			messages: data,
-			categories: uniqueSubjects,
-		},
-	};
 }

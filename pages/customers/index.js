@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Modal, Button, Form } from "react-bootstrap";
 import { getSession } from "next-auth/react";
 
-function CustomerList({ customers }) {
+function CustomerList({ customers, customerError }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [customersPerPage] = useState(5);
 	const [search, setSearch] = useState("");
@@ -83,20 +83,23 @@ function CustomerList({ customers }) {
 		e.preventDefault();
 
 		// Add logic to handle updating customer data
-		const api = NEXT_PUBLIC_API_URL;
-		const response = await fetch(`${api}/customers/${selectedCustomer.id}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				first_name: firstName,
-				last_name: lastName,
-				email: customerEmail,
-				phone: customerPhone,
-				address: customerAddress,
-			}),
-		});
+		const END_POINT = process.env.NEXT_PUBLIC_API_URL;
+		const response = await fetch(
+			`${END_POINT}/customers/${selectedCustomer.id}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					first_name: firstName,
+					last_name: lastName,
+					email: customerEmail,
+					phone: customerPhone,
+					address: customerAddress,
+				}),
+			}
+		);
 
 		if (response.ok) {
 			const updatedCustomers = await fetchUpdatedCustomers();
@@ -121,25 +124,28 @@ function CustomerList({ customers }) {
 	};
 
 	useEffect(() => {
-		setFilteredCustomers(
-			customers.filter(
-				(customer) =>
-					customer.first_name.toLowerCase().includes(search.toLowerCase()) ||
-					customer.last_name.toLowerCase().includes(search.toLowerCase()) ||
-					customer.email.toLowerCase().includes(search.toLowerCase()) ||
-					customer.phone.includes(search) ||
-					customer.address.toLowerCase().includes(search.toLowerCase())
-			)
-		);
+		// Check if customers is an array before setting filteredCustomers
+		if (Array.isArray(customers)) {
+			setFilteredCustomers(
+				customers.filter(
+					(customer) =>
+						customer.first_name.toLowerCase().includes(search.toLowerCase()) ||
+						customer.last_name.toLowerCase().includes(search.toLowerCase()) ||
+						customer.email.toLowerCase().includes(search.toLowerCase()) ||
+						customer.phone.includes(search) ||
+						customer.address.toLowerCase().includes(search.toLowerCase())
+				)
+			);
+		}
 	}, [search, customers]);
 
 	// Get current customers
 	const indexOfLastCustomer = currentPage * customersPerPage;
 	const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
-	const currentCustomers = filteredCustomers.slice(
-		indexOfFirstCustomer,
-		indexOfLastCustomer
-	);
+	// Ensure filteredCustomers is an array before calling slice
+	const currentCustomers = Array.isArray(filteredCustomers)
+		? filteredCustomers.slice(indexOfFirstCustomer, indexOfLastCustomer)
+		: [];
 
 	// Change page
 	const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -186,54 +192,59 @@ function CustomerList({ customers }) {
 										/>
 									</div>
 								</div>
-								<div className="table-responsive p-4">
-									<table className="table">
-										<thead>
-											<tr>
-												<th>SN</th>
-												<th>Name</th>
-												<th>Email</th>
-												<th>Phone</th>
-												<th>Address</th>
-												<th>Action</th>
-											</tr>
-										</thead>
-										<tbody>
-											{currentCustomers.map((customer, index) => (
-												<tr key={customer.id}>
-													<td>{indexOfFirstCustomer + index + 1}</td>
-													<td>
-														<Link
-															className="link-brand"
-															href={`customers/${customer.id}`}
-															passHref>
-															{customer.first_name} {customer.last_name}
-														</Link>
-													</td>
-													<td>{customer.email}</td>
-													<td>{customer.phone}</td>
-													<td>{customer.address}</td>
-													<td>
-														<div className="btn-group">
-															<button
-																className="btn btn-sm btn-outline-warning"
-																onClick={() => handleEditCustomer(customer)}>
-																<i className="ti ti-edit"></i>
-															</button>
-															<button
-																className="btn btn-sm btn-dark ml-2"
-																onClick={() =>
-																	handleDeleteCustomer(customer.id)
-																}>
-																<i className="ti ti-trash"></i>
-															</button>
-														</div>
-													</td>
+								{customerError ? (
+									<div className="alert alert-danger">{customerError}</div>
+								) : (
+									// Render the component content
+									<div className="table-responsive p-4">
+										<table className="table">
+											<thead>
+												<tr>
+													<th>SN</th>
+													<th>Name</th>
+													<th>Email</th>
+													<th>Phone</th>
+													<th>Address</th>
+													<th>Action</th>
 												</tr>
-											))}
-										</tbody>
-									</table>
-								</div>
+											</thead>
+											<tbody>
+												{currentCustomers.map((customer, index) => (
+													<tr key={customer.id}>
+														<td>{indexOfFirstCustomer + index + 1}</td>
+														<td>
+															<Link
+																className="link-brand"
+																href={`customers/${customer.id}`}
+																passHref>
+																{customer.first_name} {customer.last_name}
+															</Link>
+														</td>
+														<td>{customer.email}</td>
+														<td>{customer.phone}</td>
+														<td>{customer.address}</td>
+														<td>
+															<div className="btn-group">
+																<button
+																	className="btn btn-sm btn-outline-warning"
+																	onClick={() => handleEditCustomer(customer)}>
+																	<i className="ti ti-edit"></i>
+																</button>
+																<button
+																	className="btn btn-sm btn-dark ml-2"
+																	onClick={() =>
+																		handleDeleteCustomer(customer.id)
+																	}>
+																	<i className="ti ti-trash"></i>
+																</button>
+															</div>
+														</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									</div>
+								)}
 
 								<nav className="p-3 d-flex justify-content-center">
 									<ul className="pagination">
@@ -415,24 +426,33 @@ function CustomerList({ customers }) {
 export default CustomerList;
 
 export async function getServerSideProps(context) {
-	const session = await getSession(context);
-	const email = session?.user?.email;
-	if (!session || session.user.status === "2FA") {
+	try {
+		const session = await getSession(context);
+		const email = session?.user?.email;
+		if (!session || session.user.status === "2FA") {
+			return {
+				redirect: {
+					destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
+					permanent: false,
+				},
+			};
+		}
+
+		const END_POINT = process.env.NEXT_PUBLIC_API_URL;
+		const response = await fetch(`${END_POINT}/customers`);
+		const data = await response.json();
+
 		return {
-			redirect: {
-				destination: `${process.env.VERIFY_URL}?email=${email}`, //redirect to login page
-				permanent: false,
+			props: {
+				customers: data,
+			},
+		};
+	} catch (error) {
+		return {
+			props: {
+				customers: [],
+				customerError: "Error fetching customers: " + error.message,
 			},
 		};
 	}
-
-	const api = process.env.NEXT_PUBLIC_API_URL;
-	const response = await fetch(`${api}/customers`);
-	const data = await response.json();
-
-	return {
-		props: {
-			customers: data,
-		},
-	};
 }
