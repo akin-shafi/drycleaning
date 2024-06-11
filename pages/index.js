@@ -593,7 +593,9 @@ export async function getServerSideProps() {
 		return {
 			props: {
 				services: [],
-				error: `Error fetching data from the database.${error}`,
+				error: `Error fetching data from the database.${error} ${
+					("-", END_POINT)
+				}`,
 			},
 		};
 	}
