@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../utils/db.js"; // Assuming this is the correct path to your Sequelize connection
 
-const Message = sequelize.define(
-	"Messages",
+class Message extends Model {}
+Message.init(
 	{
 		name: {
 			type: DataTypes.STRING,

@@ -3,7 +3,7 @@ import { Sequelize, DataTypes } from "sequelize";
 import sequelize from "../utils/db.js"; // Assuming this is the correct path to your Sequelize connection
 
 const Customer = sequelize.define(
-	"Customers",
+	"customers",
 	{
 		// Assuming you have fields such as id, firstName, lastName
 		first_name: {
