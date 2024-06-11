@@ -1,8 +1,26 @@
 import { Sequelize } from "sequelize";
+import fs from "fs";
+import path from "path";
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-	dialect: "mysql", // or 'mysql' or any other dialect you're using
-	logging: true, // Disable logging
+// Read the SSL certificate
+const sslCert = fs.readFileSync(
+	path.resolve(__dirname, "/eu-west-3-bundle.pem")
+);
+
+// Configure Sequelize with individual parameters
+const sequelize = new Sequelize({
+	host: "laundryservice.cns2u24k06ic.eu-west-3.rds.amazonaws.com",
+	username: "superadmin",
+	password: "superadmin123",
+	database: "washmaster",
+	port: 3306,
+	dialect: "mysql", // or 'mysql' if you're using MySQL
+	dialectOptions: {
+		ssl: {
+			ca: sslCert,
+		},
+	},
+	logging: true, // Enable logging
 	pool: {
 		max: 5,
 		min: 0,
