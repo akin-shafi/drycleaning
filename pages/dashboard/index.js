@@ -394,9 +394,12 @@ export async function getServerSideProps(context) {
 				customers: [],
 				schedules: [],
 				messages: [],
-				customerError: "Error fetching customer data: " + error.message,
-				scheduleError: "Error fetching schedule data: " + error.message,
-				messageError: "Error fetching message data: " + error.message,
+				customerError:
+					"Error fetching customer data: " + error.message + "END_POINT",
+				scheduleError:
+					"Error fetching schedule data: " + error.message + "END_POINT",
+				messageError:
+					"Error fetching message data: " + error.message + "END_POINT",
 			},
 		};
 	}

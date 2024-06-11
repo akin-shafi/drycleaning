@@ -29,7 +29,7 @@ const Message = sequelize.define(
 	},
 	{
 		sequelize,
-		modelName: "Message",
+		modelName: "messages",
 		timestamps: true, // Enable timestamps if you want createdAt and updatedAt
 	}
 );

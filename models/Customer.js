@@ -31,7 +31,7 @@ const Customer = sequelize.define(
 	},
 	{
 		sequelize,
-		modelName: "Customers",
+		modelName: "customers",
 		timestamps: false,
 	}
 );

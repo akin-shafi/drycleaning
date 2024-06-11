@@ -21,7 +21,7 @@ Service.init(
 	},
 	{
 		sequelize,
-		modelName: "Service",
+		modelName: "services",
 		timestamps: false, // Disable timestamps
 	}
 );

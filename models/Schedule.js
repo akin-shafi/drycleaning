@@ -29,7 +29,7 @@ Schedule.init(
 	},
 	{
 		sequelize,
-		modelName: "Schedule",
+		modelName: "schedules",
 		// timestamps: false, // Disable timestamps
 	}
 );
