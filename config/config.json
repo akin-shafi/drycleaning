@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "logistics",
-    "host": "127.0.0.1",
+    "username": "superadmin",
+    "password": "superadmin123",
+    "database": "washmaster",
+    "host": "laundryservice.cns2u24k06ic.eu-west-3.rds.amazonaws.com",
     "dialect": "mysql"
   },
   "test": {
@@ -18,3 +18,4 @@
     "dialect": "mysql"
   }
 }
+
