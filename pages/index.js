@@ -576,11 +576,9 @@ export default Home;
 
 export async function getServerSideProps() {
 	const END_POINT = process.env.NEXT_PUBLIC_API_URL;
-
 	try {
 		const response = await axios.get(`${END_POINT}/services`);
 		const data = response.data;
-
 		return {
 			props: {
 				services: data,
@@ -589,13 +587,22 @@ export async function getServerSideProps() {
 		};
 	} catch (error) {
 		console.error("Error fetching data:", error);
-
+		let errorMessage = "Error fetching data from the database.";
+		if (error.response) {
+			// The request was made and the server responded with a status code
+			// that falls out of the range of 2xx
+			errorMessage += ` Server responded with ${error.response.status} ${error.response.statusText}`;
+		} else if (error.request) {
+			// The request was made but no response was received
+			errorMessage += " No response received from the server";
+		} else {
+			// Something happened in setting up the request that triggered an Error
+			errorMessage += ` Error setting up request: ${error.message}`;
+		}
 		return {
 			props: {
 				services: [],
-				error: `Error fetching data from the database.${error} ${
-					("-", END_POINT)
-				}`,
+				error: errorMessage,
 			},
 		};
 	}
