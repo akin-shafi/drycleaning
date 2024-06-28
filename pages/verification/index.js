@@ -6,9 +6,12 @@ function Verify2FA() {
 	const [twoFactorToken, setTwoFactorToken] = useState("");
 	const [error, setError] = useState("");
 	const [message, setMessage] = useState("");
+	const [loading, setLoading] = useState(false); // State to manage loading state of the button
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setLoading(true); // Start loading
+
 		try {
 			const res = await fetch("/api/auth/verify-2fa", {
 				method: "POST",
@@ -31,6 +34,8 @@ function Verify2FA() {
 			}
 		} catch (error) {
 			setError("An error occurred while verifying 2FA");
+		} finally {
+			setLoading(false); // Stop loading
 		}
 	};
 
@@ -106,8 +111,10 @@ function Verify2FA() {
 												<div className="d-grid my-3">
 													<button
 														className="btn btn-brand btn-lg"
-														type="submit">
-														Verify 2FA
+														type="submit"
+														disabled={loading} // Disable the button when loading is true
+													>
+														{loading ? "Verifying..." : "Verify 2FA"}
 													</button>
 													<div>
 														<p className="text-danger mb-4">{error && error}</p>

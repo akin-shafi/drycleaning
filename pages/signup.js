@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 
@@ -11,7 +11,7 @@ const SignupPage = () => {
 	const [password, setPassword] = useState("");
 	const [passwordFeedback, setPasswordFeedback] = useState("");
 	const [feedbackColor, setFeedbackColor] = useState("text-muted");
-	//"text-gray-600"; // Default color
+	const [loading, setLoading] = useState(false); // State to manage loading state of the button
 
 	useEffect(() => {
 		if (sessionStatus === "authenticated") {
@@ -28,14 +28,14 @@ const SignupPage = () => {
 		let feedback = "";
 		let color = "text-danger";
 
-		if (password.length < 6) {
-			feedback = "Password is too short";
+		if (password.length < 8) {
+			feedback = "Password must be at least 8 characters long";
 		} else if (!/[A-Z]/.test(password)) {
-			feedback = "Password should contain at least one uppercase letter";
+			feedback = "Password must contain at least one uppercase letter";
 		} else if (!/[a-z]/.test(password)) {
-			feedback = "Password should contain at least one lowercase letter";
-		} else if (!/[0-9]/.test(password)) {
-			feedback = "Password should contain at least one number";
+			feedback = "Password must contain at least one lowercase letter";
+		} else if (!/\d/.test(password)) {
+			feedback = "Password must contain at least one number";
 		} else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
 			feedback = "Password must contain at least one special character";
 		} else {
@@ -64,10 +64,7 @@ const SignupPage = () => {
 			return;
 		}
 
-		if (!password) {
-			setError("Password is required");
-			return;
-		} else if (password.length < 8) {
+		if (password.length < 8) {
 			setError("Password must be at least 8 characters long");
 			return;
 		} else if (!/\d/.test(password)) {
@@ -84,9 +81,9 @@ const SignupPage = () => {
 			return;
 		}
 
+		setLoading(true); // Start loading
+
 		try {
-			// const response = await fetch("/api/users");
-			// const res = await fetch("/api/auth/register", {
 			const res = await fetch("/api/users", {
 				method: "POST",
 				headers: {
@@ -99,17 +96,19 @@ const SignupPage = () => {
 					image,
 				}),
 			});
+
 			if (res.status === 400) {
 				setError("This email is already registered");
-			}
-			if (res.status === 201) {
+			} else if (res.status === 201) {
 				setError("");
 				router.push("/login?message=success");
 			}
 		} catch (error) {
 			setError("Error, try again");
-			console.log(error);
+			console.error("Error:", error);
 		}
+
+		setLoading(false); // Stop loading
 	};
 
 	if (sessionStatus === "loading") {
@@ -134,52 +133,51 @@ const SignupPage = () => {
 											/>
 										</Link>
 									</div>
+									<h2 className="text-center text-muted">Signup</h2>
+									<h2 className="fs-6 fw-normal text-center text-secondary mb-4">
+										Fill in your details to Signup
+									</h2>
 									<form onSubmit={handleSubmit}>
 										<div className="form-floating mb-3">
-											<div className="">
-												<label className="form-label text-muted">Name:</label>
-											</div>
+											<label className="form-label text-muted">Name:</label>
 											<input
 												className="form-control"
 												type="text"
-												placeholder="name"
+												placeholder="Name"
+												required
 											/>
 										</div>
 										<div className="form-floating mb-3">
-											<div>
-												<label className="form-label text-muted">Email:</label>
-											</div>
+											<label className="form-label text-muted">Email:</label>
 											<input
 												className="form-control"
 												type="email"
-												placeholder="email"
+												placeholder="Email"
+												required
 											/>
 										</div>
 										<div className="form-floating mb-3">
-											<div>
-												<label className="form-label text-muted">
-													Password:
-												</label>
-											</div>
-
+											<label className="form-label text-muted">Password:</label>
 											<input
 												className="form-control"
 												type="password"
-												placeholder="password"
+												placeholder="Password"
 												value={password}
 												onChange={handlePasswordChange}
+												required
 											/>
 											<p className={`text-sm mb-4 ${feedbackColor}`}>
 												{passwordFeedback}
 											</p>
 										</div>
-
 										<button
 											className="btn btn-lg btn-brand w-100"
-											type="submit">
-											Sign up
+											type="submit"
+											disabled={loading} // Disable button when loading is true
+										>
+											{loading ? "Signing up..." : "Sign up"}
 										</button>
-										<p className="text-danger mb-4">{error && error}</p>
+										<p className="text-danger mb-4">{error}</p>
 									</form>
 									<div className="text-center text-muted mt-4">- OR -</div>
 									<Link

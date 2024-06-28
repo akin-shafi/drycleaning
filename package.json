@@ -28,7 +28,8 @@
     "react-dom": "18.3.1",
     "react-modal": "^3.16.1",
     "sequelize": "^6.37.3",
-    "server": "^1.0.39"
+    "server": "^1.0.39",
+    "speakeasy": "^2.0.0"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.0.3",

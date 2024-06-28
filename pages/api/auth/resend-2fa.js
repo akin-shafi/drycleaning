@@ -1,3 +1,4 @@
+// resend 2fa Auth
 import User from "@/models/User";
 import { generateAndSendTwoFactorToken } from "@/pages/api/twoFactorAuth";
 

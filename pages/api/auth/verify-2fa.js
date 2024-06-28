@@ -1,6 +1,6 @@
+// Verify 2fa
 import User from "@/models/User";
 import sequelize from "@/utils/db";
-import { getSession } from "next-auth/react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./[...nextauth]"; // Adjust the path to your nextauth.js file
 import { encode, decode } from "next-auth/jwt"; // Ensure next-auth JWT utilities are imported

@@ -3,11 +3,13 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
+
 export default function ResetPassword() {
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [message, setMessage] = useState("");
 	const [showSection, setShowSection] = useState(false);
+	const [loading, setLoading] = useState(false); // State to manage loading state of the button
 	const router = useRouter();
 	const { token } = router.query;
 
@@ -17,6 +19,8 @@ export default function ResetPassword() {
 			setMessage("Passwords do not match");
 			return;
 		}
+		setLoading(true); // Start loading
+
 		try {
 			const response = await axios.post("/api/reset-password", {
 				token,
@@ -27,6 +31,8 @@ export default function ResetPassword() {
 		} catch (error) {
 			setMessage(error.response.data.message);
 		}
+
+		setLoading(false); // Stop loading regardless of success or failure
 	};
 
 	return (
@@ -56,7 +62,7 @@ export default function ResetPassword() {
 											<form onSubmit={handleSubmit}>
 												<div className="row gy-2 overflow-hidden">
 													<div className="col-12">
-														<div class="text-white">Enter password</div>
+														<div className="text-white">Enter password</div>
 														<div className="form-floating mb-3">
 															<input
 																type="password"
@@ -67,20 +73,20 @@ export default function ResetPassword() {
 																required
 															/>
 															<label
-																htmlFor="password"
+																htmlFor="newPassword"
 																className="form-label">
-																password
+																Password
 															</label>
 														</div>
 													</div>
 
 													<div className="col-12">
-														<div class="text-white">Confirm password</div>
+														<div className="text-white">Confirm password</div>
 														<div className="form-floating mb-3">
 															<input
 																type="password"
 																className="form-control"
-																id="newPassword"
+																id="confirmPassword"
 																value={confirmPassword}
 																onChange={(e) =>
 																	setConfirmPassword(e.target.value)
@@ -88,7 +94,7 @@ export default function ResetPassword() {
 																required
 															/>
 															<label
-																htmlFor="password"
+																htmlFor="confirmPassword"
 																className="form-label">
 																Confirm password
 															</label>
@@ -99,8 +105,10 @@ export default function ResetPassword() {
 														<div className="d-grid my-3">
 															<button
 																className="btn btn-brand btn-lg"
-																type="submit">
-																Reset Password
+																type="submit"
+																disabled={loading} // Disable the button when loading is true
+															>
+																{loading ? "Resetting..." : "Reset Password"}
 															</button>
 														</div>
 													</div>
@@ -116,7 +124,7 @@ export default function ResetPassword() {
 													<Link
 														href="/forget-password"
 														className="link-brand text-decoration-none">
-														forget Password
+														Forget Password
 													</Link>
 												</p>
 											</div>

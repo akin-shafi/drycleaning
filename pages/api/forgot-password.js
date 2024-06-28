@@ -1,4 +1,4 @@
-import { sendResetPasswordEmail } from "../../lib/emailActions";
+import { sendResetPasswordEmail } from "@/lib/emailActions";
 import User from "@/models/User";
 import crypto from "crypto";
 import sequelize from "@/utils/db.js"; // Assuming you have a DB connection utility

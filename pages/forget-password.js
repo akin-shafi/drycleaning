@@ -7,9 +7,12 @@ export default function ForgotPassword() {
 	const [email, setEmail] = useState("");
 	const [message, setMessage] = useState("");
 	const [showSection2, setShowSection2] = useState(false);
+	const [loading, setLoading] = useState(false); // State to manage loading state of the button
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setLoading(true); // Start loading
+
 		try {
 			const response = await axios.post("/api/forgot-password", { email });
 			setMessage(response.data.message);
@@ -17,6 +20,8 @@ export default function ForgotPassword() {
 		} catch (error) {
 			setMessage(error.response.data.message);
 		}
+
+		setLoading(false); // Stop loading regardless of success or failure
 	};
 
 	return (
@@ -72,8 +77,12 @@ export default function ForgotPassword() {
 														<div className="d-grid my-3">
 															<button
 																className="btn btn-brand btn-lg"
-																type="submit">
-																Send Reset instructions
+																type="submit"
+																disabled={loading} // Disable the button when loading is true
+															>
+																{loading
+																	? "Sending..."
+																	: "Send Reset instructions"}
 															</button>
 														</div>
 													</div>
@@ -110,7 +119,7 @@ export default function ForgotPassword() {
 												<br />
 												Or try password reset using a{" "}
 												<Link
-													href="/forget-password"
+													href="/reset-password"
 													className="text-primary">
 													different email address
 												</Link>

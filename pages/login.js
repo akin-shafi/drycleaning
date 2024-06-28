@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
 import Link from "next/link";
 import MessageComponent from "@/components/MessageComponent";
+
 function SignIn() {
 	const router = useRouter();
 	const { data: session, status: sessionStatus } = useSession();
@@ -13,15 +14,11 @@ function SignIn() {
 	const [email, setEmail] = useState("sakinropo@gmail.com");
 	const [password, setPassword] = useState("User@123");
 	const [error, setError] = useState("");
-
-	// useEffect(() => {
-	// 	if (session?.user?.status === "authorized") {
-	// 		router.push("/dashboard");
-	// 	}
-	// }, [session, router]);
+	const [loading, setLoading] = useState(false); // State to manage loading state of the button
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setLoading(true); // Start loading
 
 		const res = await signIn("credentials", {
 			redirect: false,
@@ -42,7 +39,10 @@ function SignIn() {
 				router.push("/dashboard");
 			}
 		}
+
+		setLoading(false); // Stop loading regardless of success or failure
 	};
+
 	return (
 		<section className="py-3 py-md-5">
 			<div className="container">
@@ -135,8 +135,10 @@ function SignIn() {
 											<div className="d-grid my-3">
 												<button
 													className="btn btn-brand btn-lg"
-													type="submit">
-													Log in
+													type="submit"
+													disabled={loading} // Disable the button when loading is true
+												>
+													{loading ? "Logging in..." : "Log in"}
 												</button>
 												<div>
 													<p className="text-danger mb-4">{error && error}</p>
